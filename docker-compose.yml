@@ -23,7 +23,7 @@ services:
       - '3307'
       # Where our data will be persisted
     volumes:
-      - sandra:/.docker/mysql
+      - sandra:/.docker/mysql/data
 # Names our volume
 volumes:
   sandra:

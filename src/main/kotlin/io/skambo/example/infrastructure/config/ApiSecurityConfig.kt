@@ -9,6 +9,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.http.SessionCreationPolicy
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
@@ -45,9 +46,19 @@ open class ApiSecurityConfig: WebSecurityConfigurerAdapter() {
     @Throws(Exception::class)
     override fun configure(httpSecurity: HttpSecurity) {
         httpSecurity.cors()
-        httpSecurity.antMatcher(antPattern).csrf().disable().sessionManagement()
-            .sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().addFilter(apiAuthenticationFilter())
-            .authorizeRequests().anyRequest().authenticated().and().exceptionHandling()
+        httpSecurity
+            .antMatcher(antPattern)
+            .csrf().disable()
+            .httpBasic().disable()
+            .sessionManagement()
+            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            .and()
+            .addFilter(apiAuthenticationFilter())
+            .authorizeRequests()
+            .anyRequest()
+            .authenticated()
+            .and()
+            .exceptionHandling()
             .authenticationEntryPoint(restAuthenticationEntryPoint)
     }
 
