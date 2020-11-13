@@ -32,4 +32,3 @@ out/
 .vscode/
 
 .openapi-generator
-gradle/
