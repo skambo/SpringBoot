@@ -15,6 +15,9 @@ class UserService(private val userRepository: UserRepository) {
                 email = user.email,
                 phoneNumber = user.phoneNumber
         )
+        if (userRepository.findByEmail(user.email).isPresent() || userRepository.findByPhoneNumber(user.phoneNumber).isPresent()){
+           //throw a custom domain exception
+        }
         val id: Long = userRepository.save(userDataModel).id!!
         user.id = id
         return user
