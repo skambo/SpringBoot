@@ -8,7 +8,7 @@ import java.util.*
 
 @Repository
 interface UserRepository : CrudRepository<UserDataModel, Long> {
-    @Query(value = "SELECT UserDataModel from user u WHERE u.email = email")
+    //@Query(value = "SELECT UserDataModel from user u WHERE u.email = email")
     fun findByEmail(email:String): Optional<UserDataModel>
     fun findByPhoneNumber(phoneNumber:String): Optional<UserDataModel>
 }
