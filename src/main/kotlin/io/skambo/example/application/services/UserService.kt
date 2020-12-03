@@ -4,10 +4,11 @@ import io.skambo.example.application.domain.exceptions.DuplicateUserException
 import io.skambo.example.application.domain.model.User
 import io.skambo.example.infrastructure.persistence.jpa.entities.UserDataModel
 import io.skambo.example.infrastructure.persistence.jpa.repositories.UserRepository
-import org.hibernate.exception.ConstraintViolationException
-import org.springframework.dao.DataIntegrityViolationException
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
-import java.sql.SQLIntegrityConstraintViolationException
+import java.time.OffsetDateTime
+import kotlin.streams.toList
 
 @Service
 class UserService(private val userRepository: UserRepository) {
@@ -32,5 +33,33 @@ class UserService(private val userRepository: UserRepository) {
         val id: Long = userRepository.save(userDataModel).id!!
         user.id = id
         return user
+    }
+
+    fun findUsers(pageSize:Int, sortField: String, sortDirection:String):List<User>{
+        val sort: Sort = Sort.by(sortField)
+
+        if(sortDirection == "desc"){
+            sort.descending()
+        } else {
+            sort.ascending()
+        }
+        val pageRequest: PageRequest = PageRequest.of(0, pageSize, sort)
+        val users = userRepository.findAll(pageable = pageRequest)
+        // this is how to transform data using the streams API
+        return users
+            .stream()
+            .map {userDataModel -> userDataModelToUser(userDataModel)}
+            .toList()
+    }
+
+    private fun userDataModelToUser(userDataModel: UserDataModel): User{
+        return User(
+                id = userDataModel.id,
+                name = userDataModel.name,
+                dateOfBirth = OffsetDateTime.parse(userDataModel.dateOfBirth),
+                city = userDataModel.city,
+                email = userDataModel.email,
+                phoneNumber = userDataModel.phoneNumber
+        )
     }
 }
