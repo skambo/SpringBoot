@@ -4,6 +4,7 @@ import io.skambo.example.application.domain.model.User
 import io.skambo.example.application.services.UserService
 import io.skambo.example.infrastructure.api.common.dto.UserDTO
 import io.skambo.example.infrastructure.api.fetchusers.v1.dto.FetchUsersResponse
+import org.springframework.data.domain.Page
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -20,11 +21,18 @@ class FetchUsersController(private val userService: UserService) {
     fun fetchUsers(
         @RequestParam(value = "orderBy", defaultValue = "name") orderBy: String,
         @RequestParam(value = "sortingDirection", defaultValue = "asc") sortingDirection: String,
-        @RequestParam(value = "pageSize", defaultValue = "25") pageSize: String
+        @RequestParam(value = "pageSize", defaultValue = "25") pageSize: String,
+        @RequestParam(value = "pageNumber", defaultValue = "1") pageNumber: String
     ): ResponseEntity<FetchUsersResponse>{
-        val users: List<User> = userService.findUsers(pageSize.toInt(), orderBy, sortingDirection)
+        // Checks that the page number starts at 0
+        val page:Int = if (pageNumber.toInt()-1 < 0) 0 else pageNumber.toInt()-1
+        val usersPage: Page<User> = userService.findUsers(
+            page, pageSize.toInt(), sortingDirection, orderBy.split(","))
         val response: FetchUsersResponse = FetchUsersResponse(
-            users = users.map {
+            page = page + 1,
+            totalPages = usersPage.totalPages,
+            numberOfUsers = usersPage.numberOfElements,
+            users = usersPage.map {
                 user -> UserDTO(
                     id = user.id!!,
                     name = user.name,
@@ -32,8 +40,7 @@ class FetchUsersController(private val userService: UserService) {
                     city = user.city,
                     email = user.email,
                     phoneNumber = user.phoneNumber
-                )}.toList(),
-            total = users.size
+                )}.toList()
         )
         return ResponseEntity<FetchUsersResponse>(response, HttpStatus.OK)
     }

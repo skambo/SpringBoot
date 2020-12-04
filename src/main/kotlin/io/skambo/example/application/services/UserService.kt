@@ -4,11 +4,11 @@ import io.skambo.example.application.domain.exceptions.DuplicateUserException
 import io.skambo.example.application.domain.model.User
 import io.skambo.example.infrastructure.persistence.jpa.entities.UserDataModel
 import io.skambo.example.infrastructure.persistence.jpa.repositories.UserRepository
+import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import java.time.OffsetDateTime
-import kotlin.streams.toList
 
 @Service
 class UserService(private val userRepository: UserRepository) {
@@ -35,21 +35,20 @@ class UserService(private val userRepository: UserRepository) {
         return user
     }
 
-    fun findUsers(pageSize:Int, sortField: String, sortDirection:String):List<User>{
-        val sort: Sort = Sort.by(sortField)
+    fun findUsers(pageNumber: Int, pageSize:Int, sortDirection:String, sortFields:List<String>):Page<User>{
+        val sort: Sort = Sort.by(sortFields[0])
+        for (i in 1 until sortFields.size) {
+            sort.and(Sort.by(sortFields[i]))
+        }
 
         if(sortDirection == "desc"){
             sort.descending()
         } else {
             sort.ascending()
         }
-        val pageRequest: PageRequest = PageRequest.of(0, pageSize, sort)
+        val pageRequest: PageRequest = PageRequest.of(pageNumber, pageSize, sort)
         val users = userRepository.findAll(pageable = pageRequest)
-        // this is how to transform data using the streams API
-        return users
-            .stream()
-            .map {userDataModel -> userDataModelToUser(userDataModel)}
-            .toList()
+        return users.map {userDataModel -> userDataModelToUser(userDataModel)}
     }
 
     private fun userDataModelToUser(userDataModel: UserDataModel): User{
