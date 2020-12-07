@@ -6,7 +6,7 @@ import io.skambo.example.infrastructure.persistence.jpa.entities.UserDataModel
 import io.skambo.example.infrastructure.persistence.jpa.repositories.UserRepository
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
-import org.springframework.data.domain.Sort
+import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Service
 import java.time.OffsetDateTime
 
@@ -35,19 +35,9 @@ class UserService(private val userRepository: UserRepository) {
         return user
     }
 
-    fun findUsers(pageNumber: Int, pageSize:Int, sortDirection:String, sortFields:List<String>):Page<User>{
-        val sort: Sort = Sort.by(sortFields[0])
-        for (i in 1 until sortFields.size) {
-            sort.and(Sort.by(sortFields[i]))
-        }
+    fun findUsers(pageRequest:PageRequest, specification: Specification<UserDataModel>?):Page<User>{
 
-        if(sortDirection == "desc"){
-            sort.descending()
-        } else {
-            sort.ascending()
-        }
-        val pageRequest: PageRequest = PageRequest.of(pageNumber, pageSize, sort)
-        val users = userRepository.findAll(pageable = pageRequest)
+        val users = userRepository.findAll(pageable = pageRequest, specification = specification)
         return users.map {userDataModel -> userDataModelToUser(userDataModel)}
     }
 

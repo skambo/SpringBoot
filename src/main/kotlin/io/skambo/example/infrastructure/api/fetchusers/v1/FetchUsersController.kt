@@ -1,10 +1,15 @@
 package io.skambo.example.infrastructure.api.fetchusers.v1
 
 import io.skambo.example.application.domain.model.User
+import io.skambo.example.application.helpers.SortingAndPaginationHelper
 import io.skambo.example.application.services.UserService
 import io.skambo.example.infrastructure.api.common.dto.UserDTO
 import io.skambo.example.infrastructure.api.fetchusers.v1.dto.FetchUsersResponse
+import io.skambo.example.infrastructure.persistence.jpa.entities.UserDataModel
+import io.skambo.example.infrastructure.persistence.jpa.specifications.UserSpecificationBuilder
 import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.jpa.domain.Specification
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -12,6 +17,9 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.time.OffsetDateTime
+import java.util.regex.Matcher
+import java.util.regex.Pattern
+
 
 @RestController(value = "FetchUsersControllerV1")
 @RequestMapping(value = ["v1/"])
@@ -22,12 +30,24 @@ class FetchUsersController(private val userService: UserService) {
         @RequestParam(value = "orderBy", defaultValue = "name") orderBy: String,
         @RequestParam(value = "sortingDirection", defaultValue = "asc") sortingDirection: String,
         @RequestParam(value = "pageSize", defaultValue = "25") pageSize: String,
-        @RequestParam(value = "pageNumber", defaultValue = "1") pageNumber: String
+        @RequestParam(value = "pageNumber", defaultValue = "1") pageNumber: String,
+        @RequestParam(value = "filters", defaultValue = "") filters: String
     ): ResponseEntity<FetchUsersResponse>{
+        val builder = UserSpecificationBuilder()
+        val pattern: Pattern = Pattern.compile("(\\w+?)(:|<|>)(\\w+?),")
+        val matcher: Matcher = pattern.matcher("$filters,")
+        while (matcher.find()) {
+            builder.with(matcher.group(1), matcher.group(2), matcher.group(3))
+        }
+
+        val specification: Specification<UserDataModel>? = builder.build()
+
         // Checks that the page number starts at 0
         val page:Int = if (pageNumber.toInt()-1 < 0) 0 else pageNumber.toInt()-1
-        val usersPage: Page<User> = userService.findUsers(
-            page, pageSize.toInt(), sortingDirection, orderBy.split(","))
+        val pageRequest:PageRequest = SortingAndPaginationHelper.createPageRequest(
+            page, pageSize.toInt(), sortingDirection, orderBy.split(",")
+        )
+        val usersPage: Page<User> = userService.findUsers(pageRequest, specification)
         val response: FetchUsersResponse = FetchUsersResponse(
             page = page + 1,
             totalPages = usersPage.totalPages,
