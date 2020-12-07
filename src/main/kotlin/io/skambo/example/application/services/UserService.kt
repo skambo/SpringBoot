@@ -4,11 +4,14 @@ import io.skambo.example.application.domain.exceptions.DuplicateUserException
 import io.skambo.example.application.domain.model.User
 import io.skambo.example.infrastructure.persistence.jpa.entities.UserDataModel
 import io.skambo.example.infrastructure.persistence.jpa.repositories.UserRepository
+import io.skambo.example.infrastructure.persistence.jpa.specifications.EntitySpecificationBuilder
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Service
 import java.time.OffsetDateTime
+import java.util.regex.Matcher
+import java.util.regex.Pattern
 
 @Service
 class UserService(private val userRepository: UserRepository) {
@@ -35,7 +38,15 @@ class UserService(private val userRepository: UserRepository) {
         return user
     }
 
-    fun findUsers(pageRequest:PageRequest, specification: Specification<UserDataModel>?):Page<User>{
+    fun findUsers(pageRequest:PageRequest, filters: String):Page<User>{
+        val builder = EntitySpecificationBuilder<UserDataModel>()
+        val pattern: Pattern = Pattern.compile("(\\w+?)(:|<|>)(\\w+?),")
+        val matcher: Matcher = pattern.matcher("$filters,")
+        while (matcher.find()) {
+            builder.with(matcher.group(1), matcher.group(2), matcher.group(3))
+        }
+
+        val specification: Specification<UserDataModel>? = builder.build()
 
         val users = userRepository.findAll(pageable = pageRequest, specification = specification)
         return users.map {userDataModel -> userDataModelToUser(userDataModel)}

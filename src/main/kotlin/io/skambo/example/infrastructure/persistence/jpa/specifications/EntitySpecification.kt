@@ -9,9 +9,9 @@ import javax.persistence.criteria.Predicate
 import javax.persistence.criteria.Root
 
 
-class UserSpecification(private val criteria: FilterCriteria): Specification<UserDataModel> {
+class EntitySpecification<Entity>(private val criteria: FilterCriteria): Specification<Entity> {
 
-    override fun toPredicate(root: Root<UserDataModel?>, query: CriteriaQuery<*>?, builder: CriteriaBuilder): Predicate? {
+    override fun toPredicate(root: Root<Entity?>, query: CriteriaQuery<*>?, builder: CriteriaBuilder): Predicate? {
         if (criteria.operation.equals(">", ignoreCase = true)) {
             return builder.greaterThanOrEqualTo(
                 root.get<String>(criteria.key), criteria.value.toString()
