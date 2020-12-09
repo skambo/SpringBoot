@@ -1,6 +1,7 @@
 package io.skambo.example.infrastructure.exceptions
 
 import io.skambo.example.application.domain.exceptions.DuplicateUserException
+import io.skambo.example.application.domain.exceptions.UserNotFoundException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ControllerAdvice
@@ -12,7 +13,13 @@ import kotlin.Exception
 @ControllerAdvice
 class RestResponseEntityExceptionHandler: ResponseEntityExceptionHandler() {
     @ExceptionHandler(value = [(DuplicateUserException::class)])
-    fun handleDuplicateUser(exception:DuplicateUserException, webRequest: WebRequest): ResponseEntity<Any>{
+    fun handleDuplicateUserException(exception:DuplicateUserException, webRequest: WebRequest): ResponseEntity<Any>{
+        val response = mapOf<String, String>("error" to exception.message)
+        return ResponseEntity<Any>(response, HttpStatus.BAD_REQUEST)
+    }
+
+    @ExceptionHandler(value = [(UserNotFoundException::class)])
+    fun handleUserNotFoundException(exception:UserNotFoundException, webRequest: WebRequest): ResponseEntity<Any>{
         val response = mapOf<String, String>("error" to exception.message)
         return ResponseEntity<Any>(response, HttpStatus.BAD_REQUEST)
     }
