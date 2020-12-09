@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.client.HttpServerErrorException
 import java.util.concurrent.atomic.AtomicLong
 
 @RestController(value = "GreetingControllerV2")
@@ -16,6 +17,7 @@ class GreetingController {
     @GetMapping(value = ["greeting"])
     fun greetingV2(@RequestParam(value = "name", defaultValue = "World") name:String?,
                    @RequestParam(value = "city", defaultValue = "") city:String?): GreetingResponse{
+        throw RuntimeException("An error has occurred")
         return GreetingResponse(counter.incrementAndGet(), String.format(templateV2, name, city), "SUCCESS")
     }
 }
