@@ -17,7 +17,7 @@ class GreetingController {
     @GetMapping(value = ["greeting"])
     fun greetingV2(@RequestParam(value = "name", defaultValue = "World") name:String?,
                    @RequestParam(value = "city", defaultValue = "") city:String?): GreetingResponse{
-        throw RuntimeException("An error has occurred")
+        // throw RuntimeException("An error has occurred")
         return GreetingResponse(counter.incrementAndGet(), String.format(templateV2, name, city), "SUCCESS")
     }
 }

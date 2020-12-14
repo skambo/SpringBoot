@@ -1,6 +1,6 @@
 package io.skambo.example.infrastructure.api.fetchusers.v1.dto
 
-import io.skambo.example.infrastructure.api.common.dto.UserDTO
+import io.skambo.example.infrastructure.api.common.dto.v1.UserDTO
 
 data class FetchUsersResponse(
     val page: Int,

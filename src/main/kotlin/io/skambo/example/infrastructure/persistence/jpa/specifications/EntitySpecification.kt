@@ -10,24 +10,28 @@ import javax.persistence.criteria.Root
 
 
 class EntitySpecification<Entity>(private val criteria: FilterCriteria): Specification<Entity> {
+    override fun toPredicate(
+        root: Root<Entity>,
+        query: CriteriaQuery<*>,
+        criteriaBuilder: CriteriaBuilder
+    ): Predicate? {
 
-    override fun toPredicate(root: Root<Entity?>, query: CriteriaQuery<*>?, builder: CriteriaBuilder): Predicate? {
         if (criteria.operation.equals(">", ignoreCase = true)) {
-            return builder.greaterThanOrEqualTo(
+            return criteriaBuilder.greaterThanOrEqualTo(
                 root.get<String>(criteria.key), criteria.value.toString()
             )
         } else if (criteria.operation.equals("<", ignoreCase = true)) {
-            return builder.lessThanOrEqualTo(
+            return criteriaBuilder.lessThanOrEqualTo(
                 root.get<String>(criteria.key), criteria.value.toString()
             )
         } else if (criteria.operation.equals(":",  ignoreCase = true)) {
             return if (root.get<String>(criteria.key).javaType === String::class.java) {
-                builder.like(
+                criteriaBuilder.like(
                     root.get<String>(criteria.key),
                     "%" + criteria.value.toString() + "%"
                 )
             } else {
-                builder.equal(root.get<String>(criteria.key), criteria.value.toString())
+                criteriaBuilder.equal(root.get<String>(criteria.key), criteria.value.toString())
             }
         }
         return null

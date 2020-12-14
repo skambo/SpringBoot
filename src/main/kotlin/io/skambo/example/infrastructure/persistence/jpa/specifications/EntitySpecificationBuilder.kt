@@ -23,7 +23,7 @@ class EntitySpecificationBuilder<Entity>() {
         var result: Specification<Entity>? = specs[0]
         for (i in 1 until params.size) {
             //TODO: We need to differentiate between AND and OR predicates
-            result = Specification.where<Entity>(result).and(specs[i] as Specification<Entity>?)
+            result = Specification.where<Entity>(result)?.and(specs[i] as Specification<Entity>?)
         }
         return result
     }

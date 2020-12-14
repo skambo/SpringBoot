@@ -1,6 +1,10 @@
 package io.skambo.example.infrastructure.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import io.skambo.example.infrastructure.api.common.ErrorCodes
+import io.skambo.example.infrastructure.api.common.dto.v1.ApiErrorResponse
+import io.skambo.example.infrastructure.api.common.dto.v1.Header
+import io.skambo.example.infrastructure.api.common.helpers.ApiResponseHelper
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.AuthenticationException
@@ -22,9 +26,14 @@ class RestAuthenticationEntryPoint: AuthenticationEntryPoint {
         response: HttpServletResponse,
         authException: AuthenticationException
     ) {
+        val header: Header = ApiResponseHelper.createRejectedHeader(
+            httpRequest = request,
+            header = null,
+            errorCode = ApiResponseHelper.lookupErrorCode(ErrorCodes.INVALID_API_KEY_ERR.value),
+            errorMessage = ApiResponseHelper.lookupErrorMessage(ErrorCodes.INVALID_API_KEY_ERR.value))
+        val responseBody: ApiErrorResponse = ApiErrorResponse(header = header)
         response.contentType = "application/json"
         response.status = HttpStatus.UNAUTHORIZED.value()
-        val responseBody = mapOf<String, String>("Error" to "invalid API key")
         val output = response.outputStream
 
         objectMapper!!.writeValue(output, responseBody) //!! is the null safety check

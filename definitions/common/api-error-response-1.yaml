@@ -1,0 +1,11 @@
+swagger: "2.0"
+definitions:
+  ApiErrorResponse:
+    type: object
+    properties:
+      header:
+        $ref: "common-1.yaml#/definitions/Header"
+      result:
+        type: string
+    required:
+      - header
