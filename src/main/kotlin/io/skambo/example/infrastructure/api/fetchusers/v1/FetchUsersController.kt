@@ -3,7 +3,7 @@ package io.skambo.example.infrastructure.api.fetchusers.v1
 import io.skambo.example.application.domain.model.User
 import io.skambo.example.application.helpers.SortingAndPaginationHelper
 import io.skambo.example.application.services.UserService
-import io.skambo.example.infrastructure.api.common.dto.UserDTO
+import io.skambo.example.infrastructure.api.common.dto.v1.UserDTO
 import io.skambo.example.infrastructure.api.fetchusers.v1.dto.FetchUsersResponse
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
