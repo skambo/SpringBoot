@@ -6,16 +6,13 @@ import org.springframework.data.domain.Sort
 class SortingAndPaginationHelper {
     companion object {
         fun createPageRequest(pageNumber: Int, pageSize:Int, sortDirection:String, sortFields:List<String>) : PageRequest{
-            val sort: Sort = Sort.by(sortFields[0])
-            for (i in 1 until sortFields.size) {
-                sort.and(Sort.by(sortFields[i]))
-            }
+            var direction: Sort.Direction = Sort.Direction.ASC
 
             if(sortDirection == "desc"){
-                sort.descending()
-            } else {
-                sort.ascending()
+                direction = Sort.Direction.DESC
             }
+            val orders : List<Sort.Order> = sortFields.map { field -> Sort.Order(direction, field) }.toList()
+            val sort: Sort = Sort.by(orders)
             return PageRequest.of(pageNumber, pageSize, sort)
         }
     }
