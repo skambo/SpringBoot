@@ -5,6 +5,7 @@ import org.springframework.data.domain.Sort
 
 class SortingAndPaginationHelper {
     companion object {
+        //TODO Fix sort by multiple fields as it's not sorting correctly by city
         fun createPageRequest(pageNumber: Int, pageSize:Int, sortDirection:String, sortFields:List<String>) : PageRequest{
             var direction: Sort.Direction = Sort.Direction.ASC
 
