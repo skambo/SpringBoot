@@ -97,6 +97,6 @@ class UserService(private val userRepository: UserRepository) {
         if (userRepository.findByPhoneNumber(phoneNumber).isPresent){
             //throw a custom domain exception
             throw DuplicateUserException("User with phoneNumber = $phoneNumber exists")
-        }
+       }
     }
 }
