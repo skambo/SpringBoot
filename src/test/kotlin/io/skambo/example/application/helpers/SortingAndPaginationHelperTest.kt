@@ -1,10 +1,9 @@
 package io.skambo.example.application.helpers
 
+import io.skambo.example.application.TestHelper
 import org.junit.Assert
 import org.junit.jupiter.api.Test
 import org.springframework.data.domain.PageRequest
-import org.springframework.data.domain.Sort
-import java.util.*
 
 
 class SortingAndPaginationHelperTest {
@@ -13,18 +12,12 @@ class SortingAndPaginationHelperTest {
         //TODO Improve this test with property based testing
 
         // This is the test data
-        val pageNumber: Int = 3
-        val pageSize: Int = 20
-        val sortDirection: String = "asc"
+        val pageNumber: Int = 1
+        val pageSize: Int = 25
+        val sortDirection: String = "desc"
         val sortFields: List<String> = listOf("name", "age", "city")
 
-        // We are creating the expected response for assertion
-        val direction: Sort.Direction = Sort.Direction.ASC
-
-        // We're iterating through every item in the ordered list
-        val orders: List<Sort.Order> = sortFields.map { field -> Sort.Order(direction, field) }.toList()
-        val sort: Sort = Sort.by(orders)
-        val expectedResponse: PageRequest = PageRequest.of(pageNumber, pageSize, sort)
+        val expectedResponse: PageRequest = TestHelper.createTestPageRequest(pageNumber, pageSize, sortDirection, sortFields)
 
         // Here, we are invoking the method and get its response
         val actualResponse: PageRequest = SortingAndPaginationHelper.createPageRequest(pageNumber, pageSize, sortDirection, sortFields)
