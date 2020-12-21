@@ -17,7 +17,7 @@ import java.util.regex.Pattern
 
 @Service
 class UserService(private val userRepository: UserRepository) {
-    fun create(user: User) : User {
+    fun createUser(user: User) : User {
         checkUserUniqueness(user.email, user.phoneNumber)
         val userDataModel: UserDataModel = UserDataModel(
                 name = user.name,
@@ -97,6 +97,6 @@ class UserService(private val userRepository: UserRepository) {
         if (userRepository.findByPhoneNumber(phoneNumber).isPresent){
             //throw a custom domain exception
             throw DuplicateUserException("User with phoneNumber = $phoneNumber exists")
-        }
+       }
     }
 }

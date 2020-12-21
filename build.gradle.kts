@@ -69,12 +69,14 @@ dependencies {
     // logging dependency
     implementation("org.springframework.boot:spring-boot-starter-log4j2:2.1.6.RELEASE")
 
-    testCompile("junit:junit:4.12")
+    // testCompile("junit:junit:4.12")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(module = "org.junit.vintage:junit-vintage-engine")
+        exclude(module ="spring-boot-starter-logging")
     }
 
+    testImplementation("io.kotlintest:kotlintest-runner-junit5:3.3.2")
 }
 
 project.ext.set("generatedFileNames", mutableListOf<String>())
@@ -165,5 +167,9 @@ tasks.withType<KotlinCompile> {
         freeCompilerArgs = listOf("-Xjsr305=strict")
         jvmTarget = "1.8"
     }
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
 

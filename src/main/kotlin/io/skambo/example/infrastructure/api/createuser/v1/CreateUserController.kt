@@ -24,7 +24,7 @@ class CreateUserController(private val userService: UserService){
             email = createUserRequest.email,
             phoneNumber = createUserRequest.phoneNumber
         )
-        val createdUser:User = userService.create(user)
+        val createdUser:User = userService.createUser(user)
         val response = CreateUserResponse(
             id = createdUser.id!!,
             name = createdUser.name,
