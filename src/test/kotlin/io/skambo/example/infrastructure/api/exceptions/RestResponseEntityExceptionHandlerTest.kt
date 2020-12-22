@@ -1,10 +1,9 @@
 package io.skambo.example.infrastructure.api.exceptions
 
 import io.skambo.example.application.domain.exceptions.DuplicateUserException
+import io.skambo.example.application.domain.exceptions.UserNotFoundException
 import io.skambo.example.infrastructure.api.common.ResponseStatus
 import io.skambo.example.infrastructure.api.common.dto.v1.ApiErrorResponse
-import io.skambo.example.infrastructure.api.common.dto.v1.Header
-import io.skambo.example.infrastructure.api.common.dto.v1.Status
 import org.junit.Assert
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -13,8 +12,6 @@ import org.mockito.Mock
 import org.mockito.MockitoAnnotations
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import java.time.OffsetDateTime
-import java.util.*
 import javax.servlet.http.HttpServletRequest
 
 class RestResponseEntityExceptionHandlerTest {
@@ -36,13 +33,6 @@ class RestResponseEntityExceptionHandlerTest {
     @Test
     fun testHandleDuplicateUserException(){
         val duplicateUserException: DuplicateUserException = DuplicateUserException("Duplicate user")
-        val responseHeader: Header = Header(
-            messageId = UUID.randomUUID().toString(),
-            timestamp = OffsetDateTime.now(),
-            responseStatus = Status(
-                status = ResponseStatus.REJECTED.value
-            )
-        )
         val responseEntity: ResponseEntity<ApiErrorResponse> = testRestResponseEntityExceptionHandler
             .handleDuplicateUserException(duplicateUserException, testHttpServletRequest)
 
@@ -54,6 +44,42 @@ class RestResponseEntityExceptionHandlerTest {
 
         Assert.assertNotNull(responseBody)
         Assert.assertEquals(ResponseStatus.REJECTED.value, responseBody?.header?.responseStatus?.status)
+        Assert.assertEquals(expectedErrorCode, responseBody?.header?.responseStatus?.errorCode)
+        Assert.assertEquals(expectedErrorMessage, responseBody?.header?.responseStatus?.errorMessage)
+    }
+
+    @Test
+    fun testHandleUserNotFoundException(){
+        val userNotFoundException: UserNotFoundException = UserNotFoundException("User not found")
+        val responseEntity: ResponseEntity<ApiErrorResponse> = testRestResponseEntityExceptionHandler
+            .handleUserNotFoundException(userNotFoundException, testHttpServletRequest)
+
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, responseEntity.statusCode)
+
+        val responseBody: ApiErrorResponse? = responseEntity.body
+        val expectedErrorCode: String = "SpringBootExample.UserNotFound"
+        val expectedErrorMessage: String = "User not found"
+
+        Assert.assertNotNull(responseBody)
+        Assert.assertEquals(ResponseStatus.REJECTED.value, responseBody?.header?.responseStatus?.status)
+        Assert.assertEquals(expectedErrorCode, responseBody?.header?.responseStatus?.errorCode)
+        Assert.assertEquals(expectedErrorMessage, responseBody?.header?.responseStatus?.errorMessage)
+    }
+
+    @Test
+    fun testHandleInternalServerError(){
+        val unexpectedException: RuntimeException = RuntimeException("Unexpected failure")
+        val responseEntity: ResponseEntity<ApiErrorResponse> = testRestResponseEntityExceptionHandler
+            .handleInternalServerError(unexpectedException, testHttpServletRequest)
+
+        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, responseEntity.statusCode)
+
+        val responseBody: ApiErrorResponse? = responseEntity.body
+        val expectedErrorCode: String = "SpringBootExample.UnknownFailure"
+        val expectedErrorMessage: String = "An unexpected failure has occurred with details: ${unexpectedException.localizedMessage}"
+
+        Assert.assertNotNull(responseBody)
+        Assert.assertEquals(ResponseStatus.FAILURE.value, responseBody?.header?.responseStatus?.status)
         Assert.assertEquals(expectedErrorCode, responseBody?.header?.responseStatus?.errorCode)
         Assert.assertEquals(expectedErrorMessage, responseBody?.header?.responseStatus?.errorMessage)
     }

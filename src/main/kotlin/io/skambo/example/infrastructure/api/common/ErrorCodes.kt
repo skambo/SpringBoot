@@ -6,6 +6,7 @@ enum class ErrorCodes(val value: String) {
     INVALID_METHOD_ERR("invalidMethod"),
     INVALID_API_KEY_ERR("invalidAPIKey"),
     DUPLICATE_USER_ERR("duplicateUser"),
+    USER_NOT_FOUND_ERR("userNotFound"),
     MISSING_PARAMETER_ERR_MSG("invalidRequest.missingParameter"),
     MISSING_HEADER_ERR_MSG("invalidRequest.missingHeader"),
     MISSING_MESSAGE_ID_HEADER_ERR_MSG("invalidRequest.missingMessageIdHeader"),

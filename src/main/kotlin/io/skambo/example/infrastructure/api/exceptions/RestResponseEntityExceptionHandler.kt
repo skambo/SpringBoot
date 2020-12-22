@@ -29,9 +29,14 @@ class RestResponseEntityExceptionHandler: ResponseEntityExceptionHandler() {
     }
 
     @ExceptionHandler(value = [(UserNotFoundException::class)])
-    fun handleUserNotFoundException(exception:UserNotFoundException, webRequest: WebRequest): ResponseEntity<Any>{
-        val response = mapOf<String, String>("error" to exception.message)
-        return ResponseEntity<Any>(response, HttpStatus.BAD_REQUEST)
+    fun handleUserNotFoundException(exception:UserNotFoundException, request: HttpServletRequest): ResponseEntity<ApiErrorResponse>{
+        val header:Header = ApiResponseHelper.createRejectedHeader(
+            httpRequest = request,
+            header = null,
+            errorCode = ApiResponseHelper.lookupErrorCode(ErrorCodes.USER_NOT_FOUND_ERR.value),
+            errorMessage = ApiResponseHelper.lookupErrorMessage(ErrorCodes.USER_NOT_FOUND_ERR.value, exception.message.toString()))
+        val response:ApiErrorResponse = ApiErrorResponse(header = header)
+        return ResponseEntity<ApiErrorResponse>(response, HttpStatus.BAD_REQUEST)
     }
 
     @ExceptionHandler(value = [(Exception::class)])
