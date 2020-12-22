@@ -1,4 +1,4 @@
-package io.skambo.example.infrastructure.config
+package io.skambo.example.infrastructure.api.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.skambo.example.infrastructure.api.common.ErrorCodes
