@@ -11,6 +11,9 @@
 */
 package io.skambo.example.infrastructure.api.common.dto.v1
 
+import io.skambo.example.infrastructure.api.common.dto.v1.Batch
+import io.skambo.example.infrastructure.api.common.dto.v1.Status
+
 import com.squareup.moshi.Json
 /**
  * 
