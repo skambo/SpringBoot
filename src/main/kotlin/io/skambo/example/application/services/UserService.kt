@@ -17,6 +17,8 @@ import java.util.regex.Pattern
 
 @Service
 class UserService(private val userRepository: UserRepository) {
+
+    @Throws(DuplicateUserException::class)
     fun createUser(user: User) : User {
         checkUserUniqueness(user.email, user.phoneNumber)
         val userDataModel: UserDataModel = UserDataModel(

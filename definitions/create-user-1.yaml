@@ -15,7 +15,7 @@ produces:
   - application/json
 paths:
   /api/v1/createUser:
-    get:
+    post:
       summary: Create User API
       description: Create User API
       parameters:

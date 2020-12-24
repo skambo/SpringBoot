@@ -129,6 +129,12 @@ var generateMappings = listOf(
         "swaggerPath" to "$rootDir/definitions/create-user-1.yaml",
         "packageName" to "io.skambo.example.infrastructure.api.createuser.v1.dto",
         "importMappings" to generatorImportMappings
+    ),
+    mapOf(
+        "name" to "generateDeleteUserDTO",
+        "swaggerPath" to "$rootDir/definitions/delete-user-1.yaml",
+        "packageName" to "io.skambo.example.infrastructure.api.deleteuser.v1.dto",
+        "importMappings" to generatorImportMappings
     )
 )
 

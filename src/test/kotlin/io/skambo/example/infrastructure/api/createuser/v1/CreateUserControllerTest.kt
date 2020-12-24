@@ -1,5 +1,6 @@
 package io.skambo.example.infrastructure.api.createuser.v1
 
+import io.skambo.example.application.domain.exceptions.DuplicateUserException
 import io.skambo.example.application.domain.model.User
 import io.skambo.example.application.services.UserService
 import io.skambo.example.infrastructure.api.ApiTestHelper
@@ -73,8 +74,6 @@ class CreateUserControllerTest {
 
     @Test
     fun testCreateUser(){
-        //TODO Test response conforms to API standards
-
         `when`(mockUserService.createUser(testUser)).thenReturn(mockCreatedUser)
 
         val expectedResponseBody: CreateUserResponse = CreateUserResponse(
@@ -101,6 +100,34 @@ class CreateUserControllerTest {
         Assert.assertNull(response.body?.header?.responseStatus?.errorCode)
         Assert.assertNull(response.body?.header?.responseStatus?.errorMessage)
 
+        verify(mockUserService, times(1 )).createUser(testUser)
+    }
+
+    @Test
+    fun testCreateUser_DuplicateUserException(){
+        val duplicateUserException: DuplicateUserException = DuplicateUserException("User exists")
+
+        `when`(mockUserService.createUser(testUser)).thenThrow(duplicateUserException)
+
+        val thrownException:DuplicateUserException = Assert.assertThrows(DuplicateUserException::class.java){
+            testCreateUserController.createUser(testCreateUserRequest, testHttpServletRequest)
+        }
+
+        Assert.assertEquals(duplicateUserException, thrownException)
+        verify(mockUserService, times(1 )).createUser(testUser)
+    }
+
+    @Test
+    fun testCreateUser_UnexpectedException_Propagated(){
+        val unexpectedException: RuntimeException = RuntimeException("An unexpected error occurred")
+
+        `when`(mockUserService.createUser(testUser)).thenThrow(unexpectedException)
+
+        val thrownException:RuntimeException = Assert.assertThrows(RuntimeException::class.java){
+            testCreateUserController.createUser(testCreateUserRequest, testHttpServletRequest)
+        }
+
+        Assert.assertEquals(unexpectedException, thrownException)
         verify(mockUserService, times(1 )).createUser(testUser)
     }
 }
