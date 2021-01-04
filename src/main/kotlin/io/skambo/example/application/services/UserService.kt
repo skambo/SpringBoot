@@ -66,6 +66,7 @@ class UserService(private val userRepository: UserRepository) {
         return userDataModelToUser(userDataModel)
     }
 
+    @Throws(UserNotFoundException::class)
     fun deleteUser(userId:Long){
         val userDataModel:UserDataModel = findUserDataModelById(userId)
         userRepository.delete(userDataModel)
