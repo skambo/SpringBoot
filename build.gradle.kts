@@ -98,18 +98,25 @@ val generatorTypeMappings = mapOf(
 )
 
 val headerImport = "io.skambo.example.infrastructure.api.common.dto.v1.Header"
+val userDtoImport = "io.skambo.example.infrastructure.api.common.dto.v1.UserDTO"
 val generatorImportMappings = mapOf(
     "Header" to headerImport,
     headerImport to headerImport, // hack to prevent wrong import of Header
     "Batch" to "io.skambo.example.infrastructure.api.common.dto.v1.Batch",
     "Status" to "io.skambo.example.infrastructure.api.common.dto.v1.Status",
-    "Amount" to "io.skambo.example.infrastructure.api.common.dto.v1.Amount"
+    "Amount" to "io.skambo.example.infrastructure.api.common.dto.v1.Amount",
+    "UserDTO" to userDtoImport
 )
 
 var generateMappings = listOf(
     mapOf(
         "name" to "generateCommonDTOs",
         "swaggerPath" to "$rootDir/definitions/common/common-1.yaml",
+        "packageName" to "io.skambo.example.infrastructure.api.common.dto.v1"
+    ),
+    mapOf(
+        "name" to "generateUserDTO",
+        "swaggerPath" to "$rootDir/definitions/common/user-1.yaml",
         "packageName" to "io.skambo.example.infrastructure.api.common.dto.v1"
     ),
     mapOf(
@@ -134,6 +141,12 @@ var generateMappings = listOf(
         "name" to "generateDeleteUserDTO",
         "swaggerPath" to "$rootDir/definitions/delete-user-1.yaml",
         "packageName" to "io.skambo.example.infrastructure.api.deleteuser.v1.dto",
+        "importMappings" to generatorImportMappings
+    ),
+    mapOf(
+        "name" to "generateFetchUserDTO",
+        "swaggerPath" to "$rootDir/definitions/fetch-user-1.yaml",
+        "packageName" to "io.skambo.example.infrastructure.api.fetchuser.v1.dto",
         "importMappings" to generatorImportMappings
     )
 )

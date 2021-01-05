@@ -92,4 +92,18 @@ class DeleteUserControllerTest {
 
         verify(mockUserService, Mockito.times(1)).deleteUser(userId)
     }
+
+    @Test
+    fun testDeleteUser_UnexpectedException_Propagated(){
+        val unexpectedException: RuntimeException = RuntimeException("An unexpected error occurred")
+
+        `when`(mockUserService.deleteUser(userId)).thenThrow(unexpectedException)
+
+        val thrownException:RuntimeException = Assert.assertThrows(RuntimeException::class.java){
+            testDeleteUserController.deleteUser(userId, testHttpServletRequest)
+        }
+
+        Assert.assertEquals(unexpectedException, thrownException)
+        verify(mockUserService, Mockito.times(1)).deleteUser(userId)
+    }
 }
