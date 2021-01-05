@@ -1,0 +1,55 @@
+swagger: "2.0"
+info:
+  title: SpringBoot
+  version: 1.0.0
+  description: SpringBoot Examples.
+host: 127.0.0.1:8080
+externalDocs:
+  description: GitHub README
+  url: "https://github.com/skambo/kotlin"
+schemes:
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /api/v1/deleteUser/{id}:
+    delete:
+      summary: Delete User API
+      description: Delete User API
+      parameters:
+        - $ref: "common/common-1.yaml#/parameters/messageId" 
+        - $ref: "common/common-1.yaml#/parameters/timestamp" 
+        - $ref: "common/common-1.yaml#/parameters/groupId"
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/DeleteUserResponse"
+        "400":
+          description: Request Rejected
+          schema:
+            $ref: "#/definitions/DeleteUserResponse"
+        "401":
+          description: Request Unauthorized
+          schema:
+            $ref: "#/definitions/DeleteUserResponse"
+        "500":
+          description: Delete User Failed
+          schema:
+            $ref: "#/definitions/DeleteUserResponse"
+
+securityDefinitions:
+  ApiKeyAuth:
+    type: apiKey
+    in: header
+    name: Authorization
+
+definitions:
+  DeleteUserResponse:
+    type: object
+    properties:
+      header:
+        $ref: "common/common-1.yaml#/definitions/Header"
+

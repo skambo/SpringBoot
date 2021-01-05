@@ -69,6 +69,10 @@ dependencies {
     // logging dependency
     implementation("org.springframework.boot:spring-boot-starter-log4j2:2.1.6.RELEASE")
 
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.0")
+
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.5")
+
     // testCompile("junit:junit:4.12")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
@@ -93,31 +97,56 @@ val generatorTypeMappings = mapOf(
     "java.time.LocalDateTime" to "java.time.OffsetDateTime"
 )
 
-val headerImport = "io.skambo.example.infrastructure.api.common.dto.dto.Header"
+val headerImport = "io.skambo.example.infrastructure.api.common.dto.v1.Header"
+val userDtoImport = "io.skambo.example.infrastructure.api.common.dto.v1.UserDTO"
 val generatorImportMappings = mapOf(
     "Header" to headerImport,
     headerImport to headerImport, // hack to prevent wrong import of Header
-    "Batch" to "io.skambo.example.infrastructure.api.common.dto.dto.Batch",
-    "Status" to "io.skambo.example.infrastructure.api.common.dto.dto.Status",
-    "Amount" to "io.skambo.example.infrastructure.api.common.dto.dto.Amount"
+    "Batch" to "io.skambo.example.infrastructure.api.common.dto.v1.Batch",
+    "Status" to "io.skambo.example.infrastructure.api.common.dto.v1.Status",
+    "Amount" to "io.skambo.example.infrastructure.api.common.dto.v1.Amount",
+    "UserDTO" to userDtoImport
 )
 
 var generateMappings = listOf(
     mapOf(
         "name" to "generateCommonDTOs",
         "swaggerPath" to "$rootDir/definitions/common/common-1.yaml",
-        "packageName" to "io.skambo.example.infrastructure.api.common.dto.dto"
+        "packageName" to "io.skambo.example.infrastructure.api.common.dto.v1"
+    ),
+    mapOf(
+        "name" to "generateUserDTO",
+        "swaggerPath" to "$rootDir/definitions/common/user-1.yaml",
+        "packageName" to "io.skambo.example.infrastructure.api.common.dto.v1"
     ),
     mapOf(
         "name" to "generateApiErrorResponseDTO",
         "swaggerPath" to "$rootDir/definitions/common/api-error-response-1.yaml",
-        "packageName" to "io.skambo.example.infrastructure.api.common.dto.dto",
+        "packageName" to "io.skambo.example.infrastructure.api.common.dto.v1",
         "importMappings" to generatorImportMappings
     ),
     mapOf(
         "name" to "generateGreetingDTO",
         "swaggerPath" to "$rootDir/definitions/greeting-1.yaml",
         "packageName" to "io.skambo.example.infrastructure.api.greeting.v1.dto",
+        "importMappings" to generatorImportMappings
+    ),
+    mapOf(
+        "name" to "generateCreateUserDTO",
+        "swaggerPath" to "$rootDir/definitions/create-user-1.yaml",
+        "packageName" to "io.skambo.example.infrastructure.api.createuser.v1.dto",
+        "importMappings" to generatorImportMappings
+    ),
+    mapOf(
+        "name" to "generateDeleteUserDTO",
+        "swaggerPath" to "$rootDir/definitions/delete-user-1.yaml",
+        "packageName" to "io.skambo.example.infrastructure.api.deleteuser.v1.dto",
+        "importMappings" to generatorImportMappings
+    ),
+    mapOf(
+        "name" to "generateFetchUserDTO",
+        "swaggerPath" to "$rootDir/definitions/fetch-user-1.yaml",
+        "packageName" to "io.skambo.example.infrastructure.api.fetchuser.v1.dto",
         "importMappings" to generatorImportMappings
     )
 )

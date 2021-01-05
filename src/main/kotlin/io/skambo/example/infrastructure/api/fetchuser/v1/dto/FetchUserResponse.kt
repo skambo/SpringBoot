@@ -9,7 +9,7 @@
 * https://openapi-generator.tech
 * Do not edit the class manually.
 */
-package io.skambo.example.infrastructure.api.createuser.v1.dto
+package io.skambo.example.infrastructure.api.fetchuser.v1.dto
 
 import io.skambo.example.infrastructure.api.common.dto.v1.Header
 
@@ -17,25 +17,28 @@ import com.squareup.moshi.Json
 /**
  * 
  * @param header 
+ * @param id 
  * @param name 
  * @param dateOfBirth 
  * @param city 
  * @param email 
  * @param phoneNumber 
  */
-data class CreateUserRequest (
+data class FetchUserResponse (
     @Json(name = "header")
-    val header: io.skambo.example.infrastructure.api.common.dto.v1.Header,
+    val header: io.skambo.example.infrastructure.api.common.dto.v1.Header? = null,
+    @Json(name = "id")
+    val id: kotlin.Long? = null,
     @Json(name = "name")
-    val name: kotlin.String,
+    val name: kotlin.String? = null,
     @Json(name = "dateOfBirth")
-    val dateOfBirth: java.time.OffsetDateTime,
+    val dateOfBirth: java.time.OffsetDateTime? = null,
     @Json(name = "city")
-    val city: kotlin.String,
+    val city: kotlin.String? = null,
     @Json(name = "email")
-    val email: kotlin.String,
+    val email: kotlin.String? = null,
     @Json(name = "phoneNumber")
-    val phoneNumber: kotlin.String
+    val phoneNumber: kotlin.String? = null
 ) {
 
 }

@@ -11,6 +11,8 @@
 */
 package io.skambo.example.infrastructure.api.common.dto.v1
 
+import io.skambo.example.infrastructure.api.common.dto.v1.Header
+
 import com.squareup.moshi.Json
 /**
  * 

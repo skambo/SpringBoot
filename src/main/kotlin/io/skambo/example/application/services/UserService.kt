@@ -17,6 +17,8 @@ import java.util.regex.Pattern
 
 @Service
 class UserService(private val userRepository: UserRepository) {
+
+    @Throws(DuplicateUserException::class)
     fun createUser(user: User) : User {
         checkUserUniqueness(user.email, user.phoneNumber)
         val userDataModel: UserDataModel = UserDataModel(
@@ -64,6 +66,7 @@ class UserService(private val userRepository: UserRepository) {
         return userDataModelToUser(userDataModel)
     }
 
+    @Throws(UserNotFoundException::class)
     fun deleteUser(userId:Long){
         val userDataModel:UserDataModel = findUserDataModelById(userId)
         userRepository.delete(userDataModel)

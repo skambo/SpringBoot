@@ -1,6 +1,6 @@
 package io.skambo.example.application.helpers
 
-import io.skambo.example.application.TestHelper
+import io.skambo.example.application.ApplicationTestHelper
 import org.junit.Assert
 import org.junit.jupiter.api.Test
 import org.springframework.data.domain.PageRequest
@@ -17,7 +17,7 @@ class SortingAndPaginationHelperTest {
         val sortDirection: String = "desc"
         val sortFields: List<String> = listOf("name", "age", "city")
 
-        val expectedResponse: PageRequest = TestHelper.createTestPageRequest(pageNumber, pageSize, sortDirection, sortFields)
+        val expectedResponse: PageRequest = ApplicationTestHelper.createTestPageRequest(pageNumber, pageSize, sortDirection, sortFields)
 
         // Here, we are invoking the method and get its response
         val actualResponse: PageRequest = SortingAndPaginationHelper.createPageRequest(pageNumber, pageSize, sortDirection, sortFields)
