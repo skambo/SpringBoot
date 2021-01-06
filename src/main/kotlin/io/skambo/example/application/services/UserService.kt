@@ -61,6 +61,7 @@ class UserService(private val userRepository: UserRepository) {
         return users.map {userDataModel -> userDataModelToUser(userDataModel)}
     }
 
+    @Throws(UserNotFoundException::class)
     fun findUserById(userId:Long): User {
         val userDataModel:UserDataModel = findUserDataModelById(userId)
         return userDataModelToUser(userDataModel)
