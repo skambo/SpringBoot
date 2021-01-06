@@ -1,0 +1,92 @@
+swagger: "2.0"
+info:
+  title: SpringBoot
+  version: 1.0.0
+  description: SpringBoot Examples.
+host: 127.0.0.1:8080
+externalDocs:
+  description: GitHub README
+  url: "https://github.com/skambo/kotlin"
+schemes:
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /api/v1/fetchUsers:
+    get:
+      summary: Fetch Users API
+      description: Fetch Users API
+      parameters:
+        - $ref: "common/common-1.yaml#/parameters/messageId" 
+        - $ref: "common/common-1.yaml#/parameters/timestamp" 
+        - $ref: "common/common-1.yaml#/parameters/groupId"
+        - in: query
+          name: orderBy
+          schema:
+            type: string
+          description: Comma separated list of ordering fields
+        - in: query
+          name: sortingDirection
+          schema:
+            type: string
+          description: String denoting the sorting direction i.e. ASC or DESC
+        - in: query
+          name: pageSize
+          schema:
+            type: string
+          description: Number of items in each page
+        - in: query
+          name: pageNumber
+          schema:
+            type: string
+          description: The page being requested
+        - in: query
+          name: filters
+          schema:
+            type: string
+          description: Comma separated list of key:value pairs of search filters
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/FetchUsersResponse"
+        "400":
+          description: Request Rejected
+          schema:
+            $ref: "#/definitions/FetchUsersResponse"
+        "401":
+          description: Request Unauthorized
+          schema:
+            $ref: "#/definitions/FetchUsersResponse"
+        "500":
+          description: Fetch User Failed
+          schema:
+            $ref: "#/definitions/FetchUsersResponse"
+
+securityDefinitions:
+  ApiKeyAuth:
+    type: apiKey
+    in: header
+    name: Authorization
+
+definitions:
+  FetchUsersResponse:
+    type: object
+    properties:
+      header:
+        $ref: "common/common-1.yaml#/definitions/Header"
+      page:
+        type: integer
+      numberOfUsers:
+        type: integer
+      totalPages:
+        type: integer
+      users:
+        type: array
+        items:
+          $ref: "common/user-1.yaml#/definitions/UserDTO"
+    required:
+      - header
+
