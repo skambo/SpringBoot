@@ -4,6 +4,7 @@ import io.skambo.example.application.services.UserService
 import io.skambo.example.infrastructure.api.common.dto.v1.Header
 import io.skambo.example.infrastructure.api.common.helpers.ApiResponseHelper
 import io.skambo.example.infrastructure.api.createuser.v1.CreateUserController
+import io.skambo.example.infrastructure.api.createuser.v1.dto.CreateUserResponse
 import io.skambo.example.infrastructure.api.deleteuser.v1.dto.DeleteUserResponse
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -25,6 +26,10 @@ class DeleteUserController(private val userService: UserService) {
         userService.deleteUser(userId)
         val header: Header = ApiResponseHelper.createBasicHeaderFromHttpRequestHeader(httpRequest = request)
         val response:DeleteUserResponse = DeleteUserResponse(header = header)
-        return ResponseEntity(response, HttpStatus.NO_CONTENT)
+        return ApiResponseHelper.createResponseEntity<DeleteUserResponse>(
+            responseHeader = response.header,
+            body = response,
+            httpStatusCode = HttpStatus.NO_CONTENT
+        )
     }
 }

@@ -66,4 +66,6 @@ definitions:
         type: string
       phoneNumber:
         type: string
+    required:
+      - header
 

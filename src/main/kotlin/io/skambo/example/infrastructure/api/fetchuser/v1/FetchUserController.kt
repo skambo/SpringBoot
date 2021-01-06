@@ -40,6 +40,9 @@ class FetchUserController(private val userService: UserService){
             email = user.email,
             phoneNumber = user.phoneNumber
         )
-        return ApiResponseHelper.createResponseEntity<FetchUserResponse>(responseHeader = response.header!!, body = response)
+        return ApiResponseHelper.createResponseEntity<FetchUserResponse>(
+            responseHeader = response.header,
+            body = response
+        )
     }
 }

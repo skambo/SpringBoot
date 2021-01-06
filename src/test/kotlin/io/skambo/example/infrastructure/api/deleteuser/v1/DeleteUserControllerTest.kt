@@ -72,8 +72,8 @@ class DeleteUserControllerTest {
 
         val responseBody: DeleteUserResponse = actualResponse.body!!
 
-        Assert.assertNotNull(responseBody.header?.messageId)
-        Assert.assertNotNull(responseBody.header?.timestamp)
+        Assert.assertNotNull(responseBody.header.messageId)
+        Assert.assertNotNull(responseBody.header.timestamp)
 
         verify(mockUserService, Mockito.times(1)).deleteUser(userId)
     }

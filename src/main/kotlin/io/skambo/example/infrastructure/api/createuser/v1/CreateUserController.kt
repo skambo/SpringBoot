@@ -6,6 +6,7 @@ import io.skambo.example.application.services.UserService
 import io.skambo.example.infrastructure.api.common.helpers.ApiResponseHelper
 import io.skambo.example.infrastructure.api.createuser.v1.dto.CreateUserRequest
 import io.skambo.example.infrastructure.api.createuser.v1.dto.CreateUserResponse
+import io.skambo.example.infrastructure.api.fetchuser.v1.dto.FetchUserResponse
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
@@ -40,6 +41,10 @@ class CreateUserController(private val userService: UserService){
             email = createdUser.email,
             city = createdUser.city,
             phoneNumber = createdUser.phoneNumber)
-        return ResponseEntity<CreateUserResponse>(response, HttpStatus.CREATED)
+        return ApiResponseHelper.createResponseEntity<CreateUserResponse>(
+            responseHeader = response.header,
+            body = response,
+            httpStatusCode = HttpStatus.CREATED
+        )
     }
 }

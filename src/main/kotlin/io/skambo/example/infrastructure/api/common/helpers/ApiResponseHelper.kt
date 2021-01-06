@@ -108,7 +108,7 @@ object ApiResponseHelper {
      * @return
      */
 
-    fun <T> createResponseEntity(responseHeader: Header, body: T): ResponseEntity<T> {
+    fun <T> createResponseEntity(responseHeader: Header, body: T, httpStatusCode: HttpStatus? = null): ResponseEntity<T> {
         val responseEntity: ResponseEntity<T>?
 
         val headers = org.springframework.http.HttpHeaders()
@@ -116,28 +116,31 @@ object ApiResponseHelper {
         headers.add(ApiHeaderKey.MESSAGE_ID.value, responseHeader.messageId)
         headers.add(ApiHeaderKey.TIMESTAMP.value, responseHeader.timestamp.toString())
 
-        when (responseHeader.responseStatus!!.status) {
-            SUCCESS_STATUS ->
-                // returns 200
-                responseEntity = ResponseEntity(body, headers, HttpStatus.OK)
+        if(httpStatusCode == null) {
+            when (responseHeader.responseStatus!!.status) {
+                SUCCESS_STATUS ->
+                    // returns 200
+                    responseEntity = ResponseEntity(body, headers, HttpStatus.OK)
 
-            REJECTED_STATUS ->
-                // returns 400
-                responseEntity = ResponseEntity(body, headers, HttpStatus.BAD_REQUEST)
+                REJECTED_STATUS ->
+                    // returns 400
+                    responseEntity = ResponseEntity(body, headers, HttpStatus.BAD_REQUEST)
 
-            FAILURE_STATUS ->
-                // returns 500
-                responseEntity = ResponseEntity(body, headers, HttpStatus.INTERNAL_SERVER_ERROR)
+                FAILURE_STATUS ->
+                    // returns 500
+                    responseEntity = ResponseEntity(body, headers, HttpStatus.INTERNAL_SERVER_ERROR)
 
-            UNKNOWN_STATUS ->
-                // returns 500
-                responseEntity = ResponseEntity(body, headers, HttpStatus.INTERNAL_SERVER_ERROR)
+                UNKNOWN_STATUS ->
+                    // returns 500
+                    responseEntity = ResponseEntity(body, headers, HttpStatus.INTERNAL_SERVER_ERROR)
 
-            else ->
-                // returns 500
-                responseEntity = ResponseEntity(body, headers, HttpStatus.INTERNAL_SERVER_ERROR)
+                else ->
+                    // returns 500
+                    responseEntity = ResponseEntity(body, headers, HttpStatus.INTERNAL_SERVER_ERROR)
+            }
+        } else {
+            responseEntity = ResponseEntity(body, headers, httpStatusCode)
         }
-
         return responseEntity
     }
 

@@ -26,7 +26,7 @@ import com.squareup.moshi.Json
  */
 data class FetchUserResponse (
     @Json(name = "header")
-    val header: io.skambo.example.infrastructure.api.common.dto.v1.Header? = null,
+    val header: io.skambo.example.infrastructure.api.common.dto.v1.Header,
     @Json(name = "id")
     val id: kotlin.Long? = null,
     @Json(name = "name")
