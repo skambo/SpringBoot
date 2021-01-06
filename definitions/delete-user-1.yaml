@@ -52,4 +52,6 @@ definitions:
     properties:
       header:
         $ref: "common/common-1.yaml#/definitions/Header"
+    required:
+      - header
 

@@ -20,7 +20,7 @@ import com.squareup.moshi.Json
  */
 data class DeleteUserResponse (
     @Json(name = "header")
-    val header: io.skambo.example.infrastructure.api.common.dto.v1.Header? = null
+    val header: io.skambo.example.infrastructure.api.common.dto.v1.Header
 ) {
 
 }

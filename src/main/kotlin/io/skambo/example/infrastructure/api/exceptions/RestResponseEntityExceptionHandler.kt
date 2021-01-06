@@ -2,6 +2,7 @@ package io.skambo.example.infrastructure.api.exceptions
 
 import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
 import io.skambo.example.application.domain.exceptions.DuplicateUserException
+import io.skambo.example.application.domain.exceptions.MalformedRequestException
 import io.skambo.example.application.domain.exceptions.UserNotFoundException
 import io.skambo.example.infrastructure.api.common.ErrorCodes
 import io.skambo.example.infrastructure.api.common.dto.v1.ApiErrorResponse
@@ -111,21 +112,21 @@ class RestResponseEntityExceptionHandler {
         return ApiResponseHelper.createResponseEntity(response.header, response)
     }
 
-//    @ExceptionHandler(MalformedRequestException::class)
-//    fun handleMalformedRequestException(
-//        ex: MalformedRequestException,
-//        request: HttpServletRequest
-//    ): ResponseEntity<ApiErrorResponse> {
-//        val response = ApiErrorResponse(
-//            header = ApiResponseHelper.createRejectedHeader(
-//                request,
-//                null,
-//                ApiResponseHelper.lookupErrorCode(ErrorCodes.INVALID_REQUEST_ERR.value),
-//                ex.message
-//            )
-//        )
-//        return ApiResponseHelper.createResponseEntity(response.header, response)
-//    }
+    @ExceptionHandler(MalformedRequestException::class)
+    fun handleMalformedRequestException(
+        ex: MalformedRequestException,
+        request: HttpServletRequest
+    ): ResponseEntity<ApiErrorResponse> {
+        val response = ApiErrorResponse(
+            header = ApiResponseHelper.createRejectedHeader(
+                request,
+                null,
+                ApiResponseHelper.lookupErrorCode(ErrorCodes.INVALID_REQUEST_ERR.value),
+                ex.message
+            )
+        )
+        return ApiResponseHelper.createResponseEntity(response.header, response)
+    }
 
     @ExceptionHandler(value = [(Exception::class)])
     fun handleInternalServerError(exception:Exception, request: HttpServletRequest): ResponseEntity<ApiErrorResponse>{
