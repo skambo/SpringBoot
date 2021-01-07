@@ -12,6 +12,8 @@
 package io.skambo.example.infrastructure.api.fetchuser.v1.dto
 
 import io.skambo.example.infrastructure.api.common.dto.v1.Header
+import io.skambo.example.infrastructure.api.common.dto.v1.UserDTO
+import io.skambo.example.infrastructure.api.fetchuser.v1.dto.FetchUserResponseAllOf
 
 import com.squareup.moshi.Json
 /**

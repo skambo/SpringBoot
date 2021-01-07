@@ -1,4 +1,4 @@
-package io.skambo.example.application
+package io.skambo.example
 
 import io.skambo.example.infrastructure.persistence.jpa.entities.UserDataModel
 import io.skambo.example.infrastructure.persistence.jpa.specifications.EntitySpecificationBuilder
@@ -8,13 +8,13 @@ import org.springframework.data.jpa.domain.Specification
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
-object ApplicationTestHelper {
+object TestHelper {
     fun createTestPageRequest(
         pageNumber:Int = 3,
         pageSize:Int = 20,
         sortDirection:String = "asc",
         sortFields:List<String> = listOf("name", "age", "city")
-        ):PageRequest {
+    ):PageRequest {
 
         // We are creating the expected response for assertion
         var direction: Sort.Direction = Sort.Direction.ASC

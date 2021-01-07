@@ -48,24 +48,13 @@ securityDefinitions:
 
 definitions:
   FetchUserResponse:
-    type: object
-    properties:
-      header:
-       $ref: "common/common-1.yaml#/definitions/Header"
-      id:
-        type: integer
-        format: int64
-      name:
-        type: string
-      dateOfBirth:
-        type: string
-        format: date-time
-      city:
-        type: string
-      email:
-        type: string
-      phoneNumber:
-        type: string
-    required:
-      - header
+    allOf:
+      - type: object
+        properties:
+          header:
+            $ref: "common/common-1.yaml#/definitions/Header"
+        required:
+          - header
+      - $ref: "common/user-1.yaml#/definitions/UserDTO" 
+
 

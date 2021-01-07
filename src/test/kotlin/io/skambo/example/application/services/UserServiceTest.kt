@@ -1,6 +1,6 @@
 package io.skambo.example.application.services
 
-import io.skambo.example.application.ApplicationTestHelper
+import io.skambo.example.TestHelper
 import io.skambo.example.application.domain.exceptions.DuplicateUserException
 import io.skambo.example.application.domain.exceptions.UserNotFoundException
 import io.skambo.example.application.domain.model.User
@@ -168,10 +168,10 @@ class UserServiceTest {
         val pageSize: Int = 25
         val sortDirection: String = "desc"
         val sortFields: List<String> = listOf("name", "age", "city")
-        val pageRequest:PageRequest = ApplicationTestHelper.createTestPageRequest(pageNumber, pageSize, sortDirection, sortFields)
+        val pageRequest:PageRequest = TestHelper.createTestPageRequest(pageNumber, pageSize, sortDirection, sortFields)
 
         val filters: String = ""
-        val specification: Specification<UserDataModel>? = ApplicationTestHelper.createTestSpecification(filters)
+        val specification: Specification<UserDataModel>? = TestHelper.createTestSpecification(filters)
         val testPage:Page<UserDataModel> = PageImpl<UserDataModel>(listOf(testUserDataModel))
 
         `when`(mockUserRepository.findAll(pageable = pageRequest, specification = specification)).thenReturn(testPage)
@@ -201,10 +201,10 @@ class UserServiceTest {
         val pageSize: Int = 25
         val sortDirection: String = "desc"
         val sortFields: List<String> = listOf("name", "age", "city")
-        val pageRequest:PageRequest = ApplicationTestHelper.createTestPageRequest(pageNumber, pageSize, sortDirection, sortFields)
+        val pageRequest:PageRequest = TestHelper.createTestPageRequest(pageNumber, pageSize, sortDirection, sortFields)
 
         val filters: String = ""
-        val specification: Specification<UserDataModel>? = ApplicationTestHelper.createTestSpecification(filters)
+        val specification: Specification<UserDataModel>? = TestHelper.createTestSpecification(filters)
         val testPage:Page<UserDataModel> = PageImpl<UserDataModel>(listOf())
 
         `when`(mockUserRepository.findAll(pageable = pageRequest, specification = specification)).thenReturn(testPage)
@@ -225,10 +225,10 @@ class UserServiceTest {
         val pageSize: Int = 25
         val sortDirection: String = "desc"
         val sortFields: List<String> = listOf("name", "age", "city")
-        val pageRequest:PageRequest = ApplicationTestHelper.createTestPageRequest(pageNumber, pageSize, sortDirection, sortFields)
+        val pageRequest:PageRequest = TestHelper.createTestPageRequest(pageNumber, pageSize, sortDirection, sortFields)
 
         val filters: String = ""
-        val specification: Specification<UserDataModel>? = ApplicationTestHelper.createTestSpecification(filters)
+        val specification: Specification<UserDataModel>? = TestHelper.createTestSpecification(filters)
 
         val unexpectedException: RuntimeException = RuntimeException("Runtime exception")
         `when`(mockUserRepository.findAll(pageable = pageRequest, specification = specification)).thenThrow(unexpectedException)

@@ -105,7 +105,8 @@ val generatorImportMappings = mapOf(
     "Batch" to "io.skambo.example.infrastructure.api.common.dto.v1.Batch",
     "Status" to "io.skambo.example.infrastructure.api.common.dto.v1.Status",
     "Amount" to "io.skambo.example.infrastructure.api.common.dto.v1.Amount",
-    "UserDTO" to userDtoImport
+    "UserDTO" to userDtoImport,
+    userDtoImport to userDtoImport
 )
 
 var generateMappings = listOf(
@@ -147,6 +148,12 @@ var generateMappings = listOf(
         "name" to "generateFetchUserDTO",
         "swaggerPath" to "$rootDir/definitions/fetch-user-1.yaml",
         "packageName" to "io.skambo.example.infrastructure.api.fetchuser.v1.dto",
+        "importMappings" to generatorImportMappings
+    ),
+    mapOf(
+        "name" to "generateFetchUsersDTO",
+        "swaggerPath" to "$rootDir/definitions/fetch-users-1.yaml",
+        "packageName" to "io.skambo.example.infrastructure.api.fetchusers.v1.dto",
         "importMappings" to generatorImportMappings
     )
 )
