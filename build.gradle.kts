@@ -273,7 +273,6 @@ tasks.jacocoTestCoverageVerification {
         // exclude generated classed
         val excluded: MutableList<String> = mutableListOf<String>()
         list.forEach {
-            // excluded.add(it.substring(it.indexOf("io/pleo")).replace(".kt", "**"))
         }
 
         classDirectories.setFrom(
