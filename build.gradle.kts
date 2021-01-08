@@ -6,6 +6,7 @@ plugins {
     id ("io.spring.dependency-management") version "1.0.8.RELEASE"
     kotlin("jvm") version "1.3.50"
     kotlin("plugin.spring") version "1.3.41"
+    jacoco
 }
 
 apply(plugin = "kotlin-jpa")
@@ -155,6 +156,12 @@ var generateMappings = listOf(
         "swaggerPath" to "$rootDir/definitions/fetch-users-1.yaml",
         "packageName" to "io.skambo.example.infrastructure.api.fetchusers.v1.dto",
         "importMappings" to generatorImportMappings
+    ),
+    mapOf(
+        "name" to "generateUpdateUserDTO",
+        "swaggerPath" to "$rootDir/definitions/update-user-1.yaml",
+        "packageName" to "io.skambo.example.infrastructure.api.updateuser.v1.dto",
+        "importMappings" to generatorImportMappings
     )
 )
 
@@ -208,4 +215,90 @@ tasks.withType<KotlinCompile> {
 tasks.test {
     useJUnitPlatform()
 }
+
+jacoco {
+    toolVersion = "0.8.4"
+}
+
+tasks.jacocoTestReport {
+    doFirst {
+
+        val list: MutableList<String> = (project.ext.get("generatedFileNames") as MutableList<String>)
+        sourceDirectories.setFrom(
+            sourceSets.main.get().output.asFileTree.matching {
+                // exclude main()
+                exclude(list)
+            }
+        )
+
+        // exclude generated classed
+        val excluded: MutableList<String> = mutableListOf()
+        list.forEach {
+            excluded.add(it.substring(it.indexOf("io/pleo")).replace(".kt", "**"))
+        }
+
+        classDirectories.setFrom(
+            sourceSets.main.get().output.asFileTree.matching {
+                // exclude main()
+                exclude(excluded)
+            }
+        )
+    }
+
+    reports {
+        val mainSrc = "$rootDir/src/main/kotlin"
+        val tree = fileTree("$rootDir/build/classes")
+
+        sourceDirectories.setFrom(mainSrc)
+        classDirectories.setFrom(files(tree))
+        xml.isEnabled = true
+        csv.isEnabled = false
+        html.isEnabled = true
+        xml.destination = file("$buildDir/reports/coverage/build.xml")
+        html.destination = file("$buildDir/reports/coverage")
+    }
+}
+
+tasks.jacocoTestCoverageVerification {
+    doFirst {
+        val list: MutableList<String> = (project.ext.get("generatedFileNames")
+                as MutableList<String>)
+        sourceDirectories.setFrom(
+            sourceSets.main.get().output.asFileTree.matching {
+                // exclude main()
+                exclude(list)
+            }
+        )
+
+        // exclude generated classed
+        val excluded: MutableList<String> = mutableListOf<String>()
+        list.forEach {
+        }
+
+        classDirectories.setFrom(
+            sourceSets.main.get().output.asFileTree.matching {
+                // exclude main()
+                exclude(excluded)
+            }
+        )
+    }
+    violationRules {
+        rule {
+            limit {
+                minimum = "0.7".toBigDecimal()
+            }
+        }
+    }
+}
+
+val testCoverage by tasks.registering {
+    group = "verification"
+    description = "Runs the unit tests with coverage."
+
+    dependsOn(":generateDTO", ":test", ":jacocoTestReport", ":jacocoTestCoverageVerification")
+    val jacocoTestReport = tasks.findByName("jacocoTestReport")
+    jacocoTestReport?.mustRunAfter(tasks.findByName("test"))
+    tasks.findByName("jacocoTestCoverageVerification")?.mustRunAfter(jacocoTestReport)
+}
+
 
