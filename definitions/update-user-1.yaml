@@ -1,0 +1,96 @@
+swagger: "2.0"
+info:
+  title: SpringBoot
+  version: 1.0.0
+  description: SpringBoot Examples.
+host: 127.0.0.1:8080
+externalDocs:
+  description: GitHub README
+  url: "https://github.com/skambo/kotlin"
+schemes:
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /api/v1/updateUser/{id}:
+    patch:
+      summary: Update User API
+      description: Update User API
+      parameters:
+        - $ref: "common/common-1.yaml#/parameters/messageId" 
+        - $ref: "common/common-1.yaml#/parameters/timestamp" 
+        - $ref: "common/common-1.yaml#/parameters/groupId"
+        - in: body
+          name: updateUserRequest
+          required: true
+          schema:
+            $ref: "#/definitions/UpdateUserRequest"
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/UpdateUserResponse"
+        "400":
+          description: Request Rejected
+          schema:
+            $ref: "#/definitions/UpdateUserResponse"
+        "401":
+          description: Request Unauthorized
+          schema:
+            $ref: "#/definitions/UpdateUserResponse"
+        "500":
+          description: Update User Failed
+          schema:
+            $ref: "#/definitions/UpdateUserResponse"
+
+securityDefinitions:
+  ApiKeyAuth:
+    type: apiKey
+    in: header
+    name: Authorization
+
+definitions:
+  UpdateUserRequest:
+    type: object
+    properties:
+      header:
+        $ref: "common/common-1.yaml#/definitions/Header"
+      name:
+        type: string
+      dateOfBirth:
+        type: string
+        format: date-time
+      city:
+        type: string
+    required:
+      - header
+
+  UpdateUserResponse:
+    type: object
+    properties:
+      header:
+        $ref: "common/common-1.yaml#/definitions/Header"
+      id:
+        type: integer
+        format: int64
+      name:
+        type: string
+      dateOfBirth:
+        type: string
+        format: date-time
+      city:
+        type: string
+      email:
+        type: string
+      phoneNumber:
+        type: string
+    required:
+      - header
+      - id
+      - name
+      - dateOfBirth
+      - city
+      - email
+      - phoneNumber
