@@ -82,6 +82,9 @@ dependencies {
     }
 
     testImplementation("io.kotlintest:kotlintest-runner-junit5:3.3.2")
+
+    // https://mvnrepository.com/artifact/org.hsqldb/hsqldb
+    testCompile("org.hsqldb:hsqldb:2.5.1")
 }
 
 project.ext.set("generatedFileNames", mutableListOf<String>())
