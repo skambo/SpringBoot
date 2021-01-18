@@ -1,39 +1,39 @@
 package io.skambo.example.integration
 
-import io.skambo.example.SpringExampleApplication
+import io.skambo.example.infrastructure.api.ApiTestHelper
 import io.skambo.example.infrastructure.api.common.ApiHeaderKey
+import io.skambo.example.infrastructure.api.common.dto.v1.ApiErrorResponse
+import io.skambo.example.infrastructure.api.common.helpers.ApiResponseHelper
 import io.skambo.example.infrastructure.persistence.jpa.repositories.UserRepository
 import io.skambo.example.integration.rules.ClearDatabaseRule
 import io.skambo.example.integration.utils.TestScenario
-import org.assertj.core.api.Assertions
+import org.json.JSONObject
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.context.TestConfiguration
-import org.springframework.boot.test.web.client.LocalHostUriTemplateHandler
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.web.server.LocalServerPort
-import org.springframework.context.ApplicationContext
-import org.springframework.context.annotation.ComponentScan
 import org.springframework.http.*
-import org.springframework.stereotype.Component
 import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import org.springframework.test.context.junit4.SpringRunner
 import java.time.OffsetDateTime
 import java.util.*
 
 @ActiveProfiles("memory-test")
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-abstract class ApiBaseIntegrationTest<RequestType, ResponseType> {
+abstract class ApiBaseIntegrationTest<ClassRequestType, ClassResponseType> {
+    protected abstract val url: String
+
+    protected abstract val httpMethod: HttpMethod
+
+    protected abstract val requestBody: ClassRequestType?
+
     @Autowired
     protected lateinit var userRepository: UserRepository
 
@@ -52,6 +52,8 @@ abstract class ApiBaseIntegrationTest<RequestType, ResponseType> {
 
     protected val httpHeaders: HttpHeaders = HttpHeaders()
 
+    protected abstract fun createTestScenarios(): List<TestScenario<ClassRequestType, ClassResponseType>>
+
     @BeforeEach
     fun setUp(){
         this.httpHeaders.add(ApiHeaderKey.MESSAGE_ID.value, UUID.randomUUID().toString())
@@ -59,13 +61,37 @@ abstract class ApiBaseIntegrationTest<RequestType, ResponseType> {
         this.httpHeaders.add("Authorization", testAuthorizationToken)
     }
 
-    protected fun runTestScenarios(
-        testScenarios: List<TestScenario<RequestType, ResponseType>>
+    @Test
+    fun runIntegrationTests(){
+        this.runTestScenarios(this.createTestScenarios())
+    }
+
+    @Test
+    fun testInvalidApiKey(){
+        val headers: HttpHeaders = HttpHeaders()
+
+        headers.add(ApiHeaderKey.MESSAGE_ID.value, UUID.randomUUID().toString())
+        headers.add(ApiHeaderKey.TIMESTAMP.value, OffsetDateTime.now().toString())
+
+        val testScenarios: List<TestScenario<ClassRequestType, ApiErrorResponse>> = listOf(
+            TestScenario(
+                httpHeaders = headers,
+                requestBody = this.requestBody!!,
+                expectedHttpStatus = HttpStatus.UNAUTHORIZED,
+                expectedResponseBody = ApiErrorResponse(header = ApiTestHelper.createTestHeader()),
+                responseClass = ApiErrorResponse::class.java
+            )
+        )
+        runTestScenarios(testScenarios)
+    }
+
+    private fun <RequestClass, ResponseClass> runTestScenarios(
+        testScenarios: List<TestScenario<RequestClass, ResponseClass>>
     ){
-        for(scenario: TestScenario<RequestType, ResponseType> in testScenarios){
-            val responseEntity: ResponseEntity<ResponseType> = this.testRestTemplate.exchange(
-                "http://localhost:$port/${scenario.url}",
-                scenario.httpMethod,
+        for(scenario: TestScenario<RequestClass, ResponseClass> in testScenarios){
+            val responseEntity: ResponseEntity<ResponseClass> = this.testRestTemplate.exchange(
+                "http://localhost:$port${this.url}",
+                this.httpMethod,
                 HttpEntity(scenario.requestBody, scenario.httpHeaders),
                 scenario.responseClass
             )
@@ -73,13 +99,12 @@ abstract class ApiBaseIntegrationTest<RequestType, ResponseType> {
         }
     }
 
-    private fun assertResponse(
-        responseEntity: ResponseEntity<ResponseType>,
+    private fun <ResponseClass> assertResponse(
+        responseEntity: ResponseEntity<ResponseClass>,
         expectedHttpStatus: HttpStatus,
-        expectedResponseBody: ResponseType
+        expectedResponseBody: ResponseClass
     ) {
         Assert.assertEquals(expectedHttpStatus, responseEntity.statusCode)
-        Assert.assertEquals(expectedResponseBody, responseEntity.body)
 //      Assertions.assertThat(responseEntity.body).usingRecursiveComparison().ignoringFields("header")
 //            .isEqualTo(expectedResponseBody)
     }

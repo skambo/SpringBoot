@@ -76,6 +76,10 @@ dependencies {
 
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.5")
 
+    // https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient
+    compile("org.apache.httpcomponents:httpclient:4.5.13")
+
+
     testImplementation("org.springframework.boot:spring-boot-starter-test:$springBootVersion") {
         exclude(module ="spring-boot-starter-logging")
     }
