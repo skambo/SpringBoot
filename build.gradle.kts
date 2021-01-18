@@ -1,6 +1,8 @@
 import io.skambo.example.tasks.GenerateModelTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
+val springBootVersion:String = "2.3.2.RELEASE"
+
 plugins {
     id ("org.springframework.boot") version "2.3.2.RELEASE"
     id ("io.spring.dependency-management") version "1.0.8.RELEASE"
@@ -54,13 +56,13 @@ dependencies {
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
-    implementation("org.springframework.boot:spring-boot-starter-web") {
+    implementation("org.springframework.boot:spring-boot-starter-web:$springBootVersion") {
         exclude(module = "spring-boot-starter-logging")
     }
-    implementation("org.springframework.boot:spring-boot-starter-security:2.3.5.RELEASE") {
+    implementation("org.springframework.boot:spring-boot-starter-security:$springBootVersion") {
         exclude(module = "spring-boot-starter-logging")
     }
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa") {
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa:$springBootVersion") {
         exclude(module = "spring-boot-starter-logging")
     }
     implementation("mysql:mysql-connector-java")
@@ -68,20 +70,15 @@ dependencies {
     // developmentOnly("org.springframework.boot:spring-boot-devtools")
 
     // logging dependency
-    implementation("org.springframework.boot:spring-boot-starter-log4j2:2.1.6.RELEASE")
+    implementation("org.springframework.boot:spring-boot-starter-log4j2:$springBootVersion")
 
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.0")
 
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.5")
 
-    // testCompile("junit:junit:4.12")
-
-    testImplementation("org.springframework.boot:spring-boot-starter-test") {
-        exclude(module = "org.junit.vintage:junit-vintage-engine")
+    testImplementation("org.springframework.boot:spring-boot-starter-test:$springBootVersion") {
         exclude(module ="spring-boot-starter-logging")
     }
-
-    testImplementation("io.kotlintest:kotlintest-runner-junit5:3.3.2")
 
     // https://mvnrepository.com/artifact/org.hsqldb/hsqldb
     testCompile("org.hsqldb:hsqldb:2.5.1")
@@ -237,7 +234,7 @@ tasks.jacocoTestReport {
         // exclude generated classed
         val excluded: MutableList<String> = mutableListOf()
         list.forEach {
-            excluded.add(it.substring(it.indexOf("io/pleo")).replace(".kt", "**"))
+            excluded.add(it.substring(it.indexOf("io/skambo")).replace(".kt", "**"))
         }
 
         classDirectories.setFrom(

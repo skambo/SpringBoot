@@ -1,22 +1,26 @@
 package io.skambo.example.integration
 
 import io.skambo.example.infrastructure.api.ApiTestHelper
+import io.skambo.example.infrastructure.api.createuser.v1.CreateUserController
 import io.skambo.example.infrastructure.api.createuser.v1.dto.CreateUserRequest
 import io.skambo.example.infrastructure.api.createuser.v1.dto.CreateUserResponse
 import io.skambo.example.integration.utils.TestScenario
+import org.json.JSONObject
+import org.junit.jupiter.api.Test
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import java.time.OffsetDateTime
 
-
-class CreateUserIntegrationTestApi: ApiBaseIntegrationTest<CreateUserRequest, CreateUserResponse>() {
-    override fun createTestScenarios(): List<TestScenario<CreateUserRequest, CreateUserResponse>> {
-        return listOf(
+class CreateUserApiIntegrationTest: ApiBaseIntegrationTest<CreateUserRequest, CreateUserResponse>() {
+    @Test
+    fun createUserIntegrationTest(){
+        val testScenarios: List<TestScenario<CreateUserRequest, CreateUserResponse>> = listOf(
             TestScenario(
-                url = "/v1/createUser",
+                url = "api/v1/createUser",
                 httpMethod = HttpMethod.POST,
-                httpHeaders = HttpHeaders(),
+                httpHeaders = this.httpHeaders,
                 requestBody = CreateUserRequest(
                     header = ApiTestHelper.createTestHeader(),
                     name = "Anne",
@@ -38,5 +42,6 @@ class CreateUserIntegrationTestApi: ApiBaseIntegrationTest<CreateUserRequest, Cr
                 responseClass = CreateUserResponse::class.java
             )
         )
+        this.runTestScenarios(testScenarios)
     }
 }

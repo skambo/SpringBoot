@@ -88,9 +88,3 @@ definitions:
         type: string
     required:
       - header
-      - id
-      - name
-      - dateOfBirth
-      - city
-      - email
-      - phoneNumber
