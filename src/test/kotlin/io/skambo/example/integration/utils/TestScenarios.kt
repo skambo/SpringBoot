@@ -5,10 +5,8 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 
 data class TestScenario <RequestType, ResponseType> (
-//    val url: String,
-//    val httpMethod: HttpMethod,
-    val httpHeaders: HttpHeaders,
-    val requestBody: RequestType,
+    val httpHeaders: HttpHeaders? = null,
+    val requestBody: RequestType? = null,
     val expectedHttpStatus: HttpStatus,
     val expectedResponseBody: ResponseType,
     val responseClass: Class<ResponseType>

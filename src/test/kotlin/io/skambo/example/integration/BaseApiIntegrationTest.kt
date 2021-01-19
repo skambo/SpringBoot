@@ -1,13 +1,20 @@
 package io.skambo.example.integration
 
-import io.skambo.example.infrastructure.api.ApiTestHelper
-import io.skambo.example.infrastructure.api.common.ApiHeaderKey
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.core.JsonProcessingException
+import com.fasterxml.jackson.databind.ObjectMapper
+import io.skambo.example.ApiTestHelper
+import io.skambo.example.infrastructure.api.common.ErrorCodes
+import io.skambo.example.infrastructure.api.common.ResponseStatus
 import io.skambo.example.infrastructure.api.common.dto.v1.ApiErrorResponse
+import io.skambo.example.infrastructure.api.common.dto.v1.Header
+import io.skambo.example.infrastructure.api.common.dto.v1.Status
 import io.skambo.example.infrastructure.api.common.helpers.ApiResponseHelper
 import io.skambo.example.infrastructure.persistence.jpa.repositories.UserRepository
 import io.skambo.example.integration.rules.ClearDatabaseRule
 import io.skambo.example.integration.utils.TestScenario
-import org.json.JSONObject
+import net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
+import org.assertj.core.api.Assertions
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.jupiter.api.BeforeEach
@@ -24,10 +31,11 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.time.OffsetDateTime
 import java.util.*
 
+
 @ActiveProfiles("memory-test")
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-abstract class ApiBaseIntegrationTest<ClassRequestType, ClassResponseType> {
+abstract class BaseApiIntegrationTest<ClassRequestType, ClassResponseType> {
     protected abstract val url: String
 
     protected abstract val httpMethod: HttpMethod
@@ -50,14 +58,13 @@ abstract class ApiBaseIntegrationTest<ClassRequestType, ClassResponseType> {
     @Value("#{'\${http.auth-token}'.split(',')[0]}")
     protected val testAuthorizationToken: String? = null
 
-    protected val httpHeaders: HttpHeaders = HttpHeaders()
+    protected lateinit var httpHeaders: HttpHeaders
 
     protected abstract fun createTestScenarios(): List<TestScenario<ClassRequestType, ClassResponseType>>
 
     @BeforeEach
     fun setUp(){
-        this.httpHeaders.add(ApiHeaderKey.MESSAGE_ID.value, UUID.randomUUID().toString())
-        this.httpHeaders.add(ApiHeaderKey.TIMESTAMP.value, OffsetDateTime.now().toString())
+        this.httpHeaders = ApiTestHelper.createHttpHeaders()
         this.httpHeaders.add("Authorization", testAuthorizationToken)
     }
 
@@ -67,18 +74,25 @@ abstract class ApiBaseIntegrationTest<ClassRequestType, ClassResponseType> {
     }
 
     @Test
-    fun testInvalidApiKey(){
-        val headers: HttpHeaders = HttpHeaders()
-
-        headers.add(ApiHeaderKey.MESSAGE_ID.value, UUID.randomUUID().toString())
-        headers.add(ApiHeaderKey.TIMESTAMP.value, OffsetDateTime.now().toString())
+    fun testMissingAuthorizationHeader(){
+        val headers: HttpHeaders = ApiTestHelper.createHttpHeaders()
 
         val testScenarios: List<TestScenario<ClassRequestType, ApiErrorResponse>> = listOf(
             TestScenario(
                 httpHeaders = headers,
                 requestBody = this.requestBody!!,
                 expectedHttpStatus = HttpStatus.UNAUTHORIZED,
-                expectedResponseBody = ApiErrorResponse(header = ApiTestHelper.createTestHeader()),
+                expectedResponseBody = ApiErrorResponse(
+                    header = Header(
+                        messageId = UUID.randomUUID().toString(),
+                        timestamp = OffsetDateTime.now(),
+                        responseStatus = Status(
+                            status = ResponseStatus.REJECTED.value,
+                            errorCode = ApiResponseHelper.lookupErrorCode(ErrorCodes.INVALID_API_KEY_ERR.value),
+                            errorMessage = ApiResponseHelper.lookupErrorMessage(ErrorCodes.INVALID_API_KEY_ERR.value)
+                        )
+                    )
+                ),
                 responseClass = ApiErrorResponse::class.java
             )
         )
@@ -105,7 +119,24 @@ abstract class ApiBaseIntegrationTest<ClassRequestType, ClassResponseType> {
         expectedResponseBody: ResponseClass
     ) {
         Assert.assertEquals(expectedHttpStatus, responseEntity.statusCode)
-//      Assertions.assertThat(responseEntity.body).usingRecursiveComparison().ignoringFields("header")
-//            .isEqualTo(expectedResponseBody)
+        comparingResponseObject(expectedResponseBody, responseEntity.body)
+    }
+
+    @Throws(JsonProcessingException::class)
+    private fun <ResponseClass> comparingResponseObject(
+        expected: ResponseClass,
+        actual: ResponseClass,
+        description: String = ""
+    ) {
+        val objectMapper = ObjectMapper()
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL)
+        assertThatJson(objectMapper.writeValueAsString(actual))
+            .whenIgnoringPaths("header.timestamp", "header.messageId", "header.groupId")
+            .describedAs(description)
+            .isEqualTo(
+                objectMapper.writeValueAsString(
+                    expected
+                )
+            )
     }
 }

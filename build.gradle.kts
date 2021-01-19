@@ -86,6 +86,10 @@ dependencies {
 
     // https://mvnrepository.com/artifact/org.hsqldb/hsqldb
     testCompile("org.hsqldb:hsqldb:2.5.1")
+
+    // https://mvnrepository.com/artifact/net.javacrumbs.json-unit/json-unit-assertj
+    testCompile("net.javacrumbs.json-unit:json-unit-assertj:2.22.1")
+
 }
 
 project.ext.set("generatedFileNames", mutableListOf<String>())
