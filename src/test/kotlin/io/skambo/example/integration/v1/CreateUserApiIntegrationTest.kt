@@ -1,12 +1,20 @@
-package io.skambo.example.integration
+package io.skambo.example.integration.v1
 
 import io.skambo.example.ApiTestHelper
+import io.skambo.example.infrastructure.api.common.ResponseStatus
+import io.skambo.example.infrastructure.api.common.dto.v1.Header
+import io.skambo.example.infrastructure.api.common.dto.v1.Status
 import io.skambo.example.infrastructure.api.createuser.v1.dto.CreateUserRequest
 import io.skambo.example.infrastructure.api.createuser.v1.dto.CreateUserResponse
+import io.skambo.example.integration.BaseApiIntegrationTest
 import io.skambo.example.integration.utils.TestScenario
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
+import java.time.LocalDateTime
 import java.time.OffsetDateTime
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
+import java.util.*
 
 class CreateUserApiIntegrationTest: BaseApiIntegrationTest<CreateUserRequest, CreateUserResponse>() {
 
@@ -17,7 +25,10 @@ class CreateUserApiIntegrationTest: BaseApiIntegrationTest<CreateUserRequest, Cr
     override val requestBody: CreateUserRequest = CreateUserRequest(
         header = ApiTestHelper.createTestHeader(),
         name = "Anne",
-        dateOfBirth = OffsetDateTime.now(),
+        dateOfBirth = LocalDateTime.parse(
+            "2017-02-03 12:30:30",
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+        ).atOffset(ZoneOffset.UTC),
         city = "Nairobi",
         email = "anne@gmail.com",
         phoneNumber = "1224"
@@ -30,7 +41,13 @@ class CreateUserApiIntegrationTest: BaseApiIntegrationTest<CreateUserRequest, Cr
                 requestBody = this.requestBody,
                 expectedHttpStatus = HttpStatus.CREATED,
                 expectedResponseBody = CreateUserResponse(
-                    header = ApiTestHelper.createTestHeader(),
+                    header = Header(
+                        messageId = UUID.randomUUID().toString(),
+                        timestamp = OffsetDateTime.now(),
+                        responseStatus = Status(
+                            status = ResponseStatus.SUCCESS.value
+                        )
+                    ),
                     id = 1L,
                     name = this.requestBody.name,
                     dateOfBirth = this.requestBody.dateOfBirth,

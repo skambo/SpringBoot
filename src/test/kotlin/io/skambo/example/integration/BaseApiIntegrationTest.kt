@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.skambo.example.ApiTestHelper
+import io.skambo.example.infrastructure.api.common.ApiHeaderKey
 import io.skambo.example.infrastructure.api.common.ErrorCodes
 import io.skambo.example.infrastructure.api.common.ResponseStatus
 import io.skambo.example.infrastructure.api.common.dto.v1.ApiErrorResponse
@@ -28,10 +29,11 @@ import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.http.*
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import java.lang.AssertionError
 import java.time.OffsetDateTime
 import java.util.*
 
-
+//TODO Find a way to assert database interactions
 @ActiveProfiles("memory-test")
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -80,7 +82,7 @@ abstract class BaseApiIntegrationTest<ClassRequestType, ClassResponseType> {
         val testScenarios: List<TestScenario<ClassRequestType, ApiErrorResponse>> = listOf(
             TestScenario(
                 httpHeaders = headers,
-                requestBody = this.requestBody!!,
+                requestBody = this.requestBody,
                 expectedHttpStatus = HttpStatus.UNAUTHORIZED,
                 expectedResponseBody = ApiErrorResponse(
                     header = Header(
@@ -99,10 +101,133 @@ abstract class BaseApiIntegrationTest<ClassRequestType, ClassResponseType> {
         runTestScenarios(testScenarios)
     }
 
+    @Test
+    fun testInvalidAuthorizationToken(){
+        val headers: HttpHeaders = ApiTestHelper.createHttpHeaders()
+
+        headers.add("Authorization", "wrongApiKey$testAuthorizationToken")
+
+        val testScenarios: List<TestScenario<ClassRequestType, ApiErrorResponse>> = listOf(
+            TestScenario(
+                httpHeaders = headers,
+                requestBody = this.requestBody,
+                expectedHttpStatus = HttpStatus.UNAUTHORIZED,
+                expectedResponseBody = ApiErrorResponse(
+                    header = Header(
+                        messageId = UUID.randomUUID().toString(),
+                        timestamp = OffsetDateTime.now(),
+                        responseStatus = Status(
+                            status = ResponseStatus.REJECTED.value,
+                            errorCode = ApiResponseHelper.lookupErrorCode(ErrorCodes.INVALID_API_KEY_ERR.value),
+                            errorMessage = ApiResponseHelper.lookupErrorMessage(ErrorCodes.INVALID_API_KEY_ERR.value)
+                        )
+                    )
+                ),
+                responseClass = ApiErrorResponse::class.java
+            )
+        )
+        runTestScenarios(testScenarios)
+    }
+
+    @Test
+    fun testMissingMessageId(){
+        val headers: HttpHeaders = ApiTestHelper.createHttpHeaders()
+
+        headers.add("Authorization", testAuthorizationToken)
+        headers.remove(ApiHeaderKey.MESSAGE_ID.value)
+
+        val testScenarios: List<TestScenario<ClassRequestType, ApiErrorResponse>> = listOf(
+            TestScenario(
+                httpHeaders = headers,
+                requestBody = this.requestBody,
+                expectedHttpStatus = HttpStatus.BAD_REQUEST,
+                expectedResponseBody = ApiErrorResponse(
+                    header = Header(
+                        messageId = UUID.randomUUID().toString(),
+                        timestamp = OffsetDateTime.now(),
+                        responseStatus = Status(
+                            status = ResponseStatus.REJECTED.value,
+                            errorCode = ApiResponseHelper.lookupErrorCode(ErrorCodes.INVALID_REQUEST_ERR.value),
+                            errorMessage = ApiResponseHelper.lookupErrorMessage(ErrorCodes.MISSING_MESSAGE_ID_HEADER_ERR_MSG.value)
+                        )
+                    )
+                ),
+                responseClass = ApiErrorResponse::class.java
+            )
+        )
+        runTestScenarios(testScenarios)
+    }
+
+    @Test
+    fun testMissingTimestampHeader(){
+        val headers: HttpHeaders = ApiTestHelper.createHttpHeaders()
+
+        headers.add("Authorization", testAuthorizationToken)
+        headers.remove(ApiHeaderKey.TIMESTAMP.value)
+
+        val testScenarios: List<TestScenario<ClassRequestType, ApiErrorResponse>> = listOf(
+            TestScenario(
+                httpHeaders = headers,
+                requestBody = this.requestBody,
+                expectedHttpStatus = HttpStatus.BAD_REQUEST,
+                expectedResponseBody = ApiErrorResponse(
+                    header = Header(
+                        messageId = UUID.randomUUID().toString(),
+                        timestamp = OffsetDateTime.now(),
+                        responseStatus = Status(
+                            status = ResponseStatus.REJECTED.value,
+                            errorCode = ApiResponseHelper.lookupErrorCode(ErrorCodes.INVALID_REQUEST_ERR.value),
+                            errorMessage = ApiResponseHelper.lookupErrorMessage(ErrorCodes.MISSING_TIMESTAMP_HEADER_ERR_MSG.value)
+                        )
+                    )
+                ),
+                responseClass = ApiErrorResponse::class.java
+            )
+        )
+        runTestScenarios(testScenarios)
+    }
+
+    @Test
+    fun testInvalidTimestamp(){
+        val invalidTimestamp: String = "noTimestamp"
+        val headers: HttpHeaders = ApiTestHelper.createHttpHeaders()
+
+        headers.add("Authorization", testAuthorizationToken)
+        headers.set(ApiHeaderKey.TIMESTAMP.value, invalidTimestamp)
+
+        val testScenarios: List<TestScenario<ClassRequestType, ApiErrorResponse>> = listOf(
+            TestScenario(
+                httpHeaders = headers,
+                requestBody = this.requestBody,
+                expectedHttpStatus = HttpStatus.BAD_REQUEST,
+                expectedResponseBody = ApiErrorResponse(
+                    header = Header(
+                        messageId = UUID.randomUUID().toString(),
+                        timestamp = OffsetDateTime.now(),
+                        responseStatus = Status(
+                            status = ResponseStatus.REJECTED.value,
+                            errorCode = ApiResponseHelper.lookupErrorCode(ErrorCodes.INVALID_REQUEST_ERR.value),
+                            errorMessage = ApiResponseHelper.lookupErrorMessage(
+                                ErrorCodes.INVALID_TIMESTAMP_ERR_MSG.value,
+                                invalidTimestamp
+                            )
+                        )
+                    )
+                ),
+                responseClass = ApiErrorResponse::class.java
+            )
+        )
+        runTestScenarios(testScenarios)
+    }
+
     private fun <RequestClass, ResponseClass> runTestScenarios(
         testScenarios: List<TestScenario<RequestClass, ResponseClass>>
     ){
         for(scenario: TestScenario<RequestClass, ResponseClass> in testScenarios){
+            //This is the pre scenario higher order function that is called before the scenario is executed
+            //It is ideal for setting up data required for the test scenario
+            scenario.preScenario()
+
             val responseEntity: ResponseEntity<ResponseClass> = this.testRestTemplate.exchange(
                 "http://localhost:$port${this.url}",
                 this.httpMethod,
@@ -110,6 +235,8 @@ abstract class BaseApiIntegrationTest<ClassRequestType, ClassResponseType> {
                 scenario.responseClass
             )
             assertResponse(responseEntity, scenario.expectedHttpStatus, scenario.expectedResponseBody)
+            //This is the post scenario higher order function that is called
+            scenario.postScenario()
         }
     }
 
@@ -128,15 +255,20 @@ abstract class BaseApiIntegrationTest<ClassRequestType, ClassResponseType> {
         actual: ResponseClass,
         description: String = ""
     ) {
-        val objectMapper = ObjectMapper()
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL)
-        assertThatJson(objectMapper.writeValueAsString(actual))
-            .whenIgnoringPaths("header.timestamp", "header.messageId", "header.groupId")
-            .describedAs(description)
-            .isEqualTo(
-                objectMapper.writeValueAsString(
-                    expected
+        try{
+            val objectMapper = ObjectMapper()
+            objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL)
+            assertThatJson(objectMapper.writeValueAsString(actual))
+                .whenIgnoringPaths("header.timestamp", "header.messageId", "header.groupId")
+                .describedAs(description)
+                .isEqualTo(
+                    objectMapper.writeValueAsString(
+                        expected
+                    )
                 )
-            )
+
+        } catch(throwable:Throwable){
+            throw AssertionError(throwable.localizedMessage, throwable)
+        }
     }
 }
