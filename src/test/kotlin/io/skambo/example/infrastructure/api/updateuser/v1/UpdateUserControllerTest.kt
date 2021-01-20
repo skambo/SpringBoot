@@ -3,7 +3,7 @@ package io.skambo.example.infrastructure.api.updateuser.v1
 import io.skambo.example.application.domain.exceptions.UserNotFoundException
 import io.skambo.example.application.domain.model.User
 import io.skambo.example.application.services.UserService
-import io.skambo.example.infrastructure.api.ApiTestHelper
+import io.skambo.example.ApiTestHelper
 import io.skambo.example.infrastructure.api.common.ResponseStatus
 import io.skambo.example.infrastructure.api.updateuser.v1.dto.UpdateUserRequest
 import io.skambo.example.infrastructure.api.updateuser.v1.dto.UpdateUserResponse

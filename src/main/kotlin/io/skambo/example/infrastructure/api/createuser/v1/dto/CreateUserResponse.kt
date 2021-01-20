@@ -28,17 +28,17 @@ data class CreateUserResponse (
     @Json(name = "header")
     val header: io.skambo.example.infrastructure.api.common.dto.v1.Header,
     @Json(name = "id")
-    val id: kotlin.Long,
+    val id: kotlin.Long? = null,
     @Json(name = "name")
-    val name: kotlin.String,
+    val name: kotlin.String? = null,
     @Json(name = "dateOfBirth")
-    val dateOfBirth: java.time.OffsetDateTime,
+    val dateOfBirth: java.time.OffsetDateTime? = null,
     @Json(name = "city")
-    val city: kotlin.String,
+    val city: kotlin.String? = null,
     @Json(name = "email")
-    val email: kotlin.String,
+    val email: kotlin.String? = null,
     @Json(name = "phoneNumber")
-    val phoneNumber: kotlin.String
+    val phoneNumber: kotlin.String? = null
 ) {
 
 }

@@ -1,7 +1,6 @@
-package io.skambo.example.infrastructure.api.common.filters
+package io.skambo.example.infrastructure.api.common.interceptors
 
 import io.skambo.example.infrastructure.api.common.helpers.ApiRequestValidationHelper
-import org.springframework.http.HttpMethod
 import org.springframework.stereotype.Component
 import org.springframework.web.servlet.HandlerInterceptor
 import javax.servlet.http.HttpServletRequest
