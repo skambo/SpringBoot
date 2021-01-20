@@ -15,12 +15,13 @@ import io.skambo.example.infrastructure.persistence.jpa.repositories.UserReposit
 import io.skambo.example.integration.rules.ClearDatabaseRule
 import io.skambo.example.integration.utils.TestScenario
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
-import org.assertj.core.api.Assertions
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
@@ -33,7 +34,6 @@ import java.lang.AssertionError
 import java.time.OffsetDateTime
 import java.util.*
 
-//TODO Find a way to assert database interactions
 @ActiveProfiles("memory-test")
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -62,6 +62,8 @@ abstract class BaseApiIntegrationTest<ClassRequestType, ClassResponseType> {
 
     protected lateinit var httpHeaders: HttpHeaders
 
+    private val logger: Logger = LoggerFactory.getLogger(BaseApiIntegrationTest::class.java)
+
     protected abstract fun createTestScenarios(): List<TestScenario<ClassRequestType, ClassResponseType>>
 
     @BeforeEach
@@ -81,6 +83,7 @@ abstract class BaseApiIntegrationTest<ClassRequestType, ClassResponseType> {
 
         val testScenarios: List<TestScenario<ClassRequestType, ApiErrorResponse>> = listOf(
             TestScenario(
+                description = "Missing authorization header scenario",
                 httpHeaders = headers,
                 requestBody = this.requestBody,
                 expectedHttpStatus = HttpStatus.UNAUTHORIZED,
@@ -109,6 +112,7 @@ abstract class BaseApiIntegrationTest<ClassRequestType, ClassResponseType> {
 
         val testScenarios: List<TestScenario<ClassRequestType, ApiErrorResponse>> = listOf(
             TestScenario(
+                description = "Invalid authorization header scenario",
                 httpHeaders = headers,
                 requestBody = this.requestBody,
                 expectedHttpStatus = HttpStatus.UNAUTHORIZED,
@@ -138,6 +142,7 @@ abstract class BaseApiIntegrationTest<ClassRequestType, ClassResponseType> {
 
         val testScenarios: List<TestScenario<ClassRequestType, ApiErrorResponse>> = listOf(
             TestScenario(
+                description = "Missing messageId header scenario",
                 httpHeaders = headers,
                 requestBody = this.requestBody,
                 expectedHttpStatus = HttpStatus.BAD_REQUEST,
@@ -167,6 +172,7 @@ abstract class BaseApiIntegrationTest<ClassRequestType, ClassResponseType> {
 
         val testScenarios: List<TestScenario<ClassRequestType, ApiErrorResponse>> = listOf(
             TestScenario(
+                description = "Missing timestamp header scenario",
                 httpHeaders = headers,
                 requestBody = this.requestBody,
                 expectedHttpStatus = HttpStatus.BAD_REQUEST,
@@ -197,6 +203,7 @@ abstract class BaseApiIntegrationTest<ClassRequestType, ClassResponseType> {
 
         val testScenarios: List<TestScenario<ClassRequestType, ApiErrorResponse>> = listOf(
             TestScenario(
+                description = "Invalid timestamp header scenario",
                 httpHeaders = headers,
                 requestBody = this.requestBody,
                 expectedHttpStatus = HttpStatus.BAD_REQUEST,
@@ -224,6 +231,8 @@ abstract class BaseApiIntegrationTest<ClassRequestType, ClassResponseType> {
         testScenarios: List<TestScenario<RequestClass, ResponseClass>>
     ){
         for(scenario: TestScenario<RequestClass, ResponseClass> in testScenarios){
+            logger.info("Executing ${scenario.description}")
+
             //This is the pre scenario higher order function that is called before the scenario is executed
             //It is ideal for setting up data required for the test scenario
             scenario.preScenario()
@@ -235,7 +244,8 @@ abstract class BaseApiIntegrationTest<ClassRequestType, ClassResponseType> {
                 scenario.responseClass
             )
             assertResponse(responseEntity, scenario.expectedHttpStatus, scenario.expectedResponseBody)
-            //This is the post scenario higher order function that is called
+            //This is the post scenario higher order function that is called after the scenario is executed
+            //It is ideal for cleaning up data or adding extra assertions
             scenario.postScenario()
         }
     }
