@@ -1,10 +1,16 @@
 package io.skambo.example
 
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.google.gson.JsonDeserializer
 import io.skambo.example.infrastructure.persistence.jpa.entities.UserDataModel
 import io.skambo.example.infrastructure.persistence.jpa.specifications.EntitySpecificationBuilder
+import io.skambo.example.utils.gson.GsonFactory
+import org.json.JSONObject
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.data.jpa.domain.Specification
+import java.time.OffsetDateTime
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
@@ -38,5 +44,9 @@ object TestHelper {
         }
 
         return builder.build()
+    }
+
+    fun convertToJsonString(input: Any): String{
+        return GsonFactory.getGsonInstance().toJson(input)
     }
 }

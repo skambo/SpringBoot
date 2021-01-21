@@ -21,6 +21,7 @@ object ApiTestHelper {
         httpHeaders.add(ApiHeaderKey.MESSAGE_ID.value, header?.messageId ?: UUID.randomUUID().toString())
         httpHeaders.add(ApiHeaderKey.TIMESTAMP.value, (header?.timestamp ?: OffsetDateTime.now()).toString())
         httpHeaders.add(ApiHeaderKey.GROUP_ID.value, header?.groupId)
+        httpHeaders.add("Content-Type", "application/json");
 
         return httpHeaders
     }

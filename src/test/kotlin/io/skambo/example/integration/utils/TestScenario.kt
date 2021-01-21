@@ -7,8 +7,9 @@ import org.springframework.http.HttpStatus
 /**
  *
  */
-data class TestScenario <RequestType, ResponseType> (
+data class TestScenario <RequestType, ResponseType>(
     val description: String,
+    val endpoint: String,
     val httpHeaders: HttpHeaders? = null,
     val requestBody: RequestType? = null,
     val expectedHttpStatus: HttpStatus,

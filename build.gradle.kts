@@ -79,6 +79,7 @@ dependencies {
     // https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient
     compile("org.apache.httpcomponents:httpclient:4.5.13")
 
+    implementation("com.google.code.gson:gson:2.8.5")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test:$springBootVersion") {
         exclude(module ="spring-boot-starter-logging")
