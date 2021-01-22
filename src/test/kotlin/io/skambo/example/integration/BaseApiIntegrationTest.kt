@@ -1,9 +1,7 @@
 package io.skambo.example.integration
 
-import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.core.JsonProcessingException
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.skambo.example.ApiTestHelper
+import io.skambo.example.TestHelper
 import io.skambo.example.infrastructure.api.common.ApiHeaderKey
 import io.skambo.example.infrastructure.api.common.ErrorCodes
 import io.skambo.example.infrastructure.api.common.ResponseStatus
@@ -14,7 +12,10 @@ import io.skambo.example.infrastructure.api.common.helpers.ApiResponseHelper
 import io.skambo.example.infrastructure.persistence.jpa.repositories.UserRepository
 import io.skambo.example.integration.rules.ClearDatabaseRule
 import io.skambo.example.integration.utils.TestScenario
+import io.skambo.example.utils.gson.GsonFactory
+import net.javacrumbs.jsonunit.assertj.JsonAssert
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
+import net.javacrumbs.jsonunit.core.Option
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.jupiter.api.BeforeEach
@@ -37,12 +38,12 @@ import java.util.*
 @ActiveProfiles("memory-test")
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-abstract class BaseApiIntegrationTest<ClassRequestType, ClassResponseType> {
-    protected abstract val url: String
+abstract class BaseApiIntegrationTest<RequestType, ResponseType> {
+    protected abstract val endpoint: String
 
     protected abstract val httpMethod: HttpMethod
 
-    protected abstract val requestBody: ClassRequestType?
+    protected abstract val requestBody: RequestType?
 
     @Autowired
     protected lateinit var userRepository: UserRepository
@@ -64,7 +65,7 @@ abstract class BaseApiIntegrationTest<ClassRequestType, ClassResponseType> {
 
     private val logger: Logger = LoggerFactory.getLogger(BaseApiIntegrationTest::class.java)
 
-    protected abstract fun createTestScenarios(): List<TestScenario<ClassRequestType, ClassResponseType>>
+    protected abstract fun createTestScenarios(): List<TestScenario<RequestType, ResponseType>>
 
     @BeforeEach
     fun setUp(){
@@ -81,9 +82,10 @@ abstract class BaseApiIntegrationTest<ClassRequestType, ClassResponseType> {
     fun testMissingAuthorizationHeader(){
         val headers: HttpHeaders = ApiTestHelper.createHttpHeaders()
 
-        val testScenarios: List<TestScenario<ClassRequestType, ApiErrorResponse>> = listOf(
+        val testScenarios: List<TestScenario<RequestType, ApiErrorResponse>> = listOf(
             TestScenario(
                 description = "Missing authorization header scenario",
+                endpoint = this.endpoint,
                 httpHeaders = headers,
                 requestBody = this.requestBody,
                 expectedHttpStatus = HttpStatus.UNAUTHORIZED,
@@ -110,9 +112,10 @@ abstract class BaseApiIntegrationTest<ClassRequestType, ClassResponseType> {
 
         headers.add("Authorization", "wrongApiKey$testAuthorizationToken")
 
-        val testScenarios: List<TestScenario<ClassRequestType, ApiErrorResponse>> = listOf(
+        val testScenarios: List<TestScenario<RequestType, ApiErrorResponse>> = listOf(
             TestScenario(
                 description = "Invalid authorization header scenario",
+                endpoint = this.endpoint,
                 httpHeaders = headers,
                 requestBody = this.requestBody,
                 expectedHttpStatus = HttpStatus.UNAUTHORIZED,
@@ -140,9 +143,10 @@ abstract class BaseApiIntegrationTest<ClassRequestType, ClassResponseType> {
         headers.add("Authorization", testAuthorizationToken)
         headers.remove(ApiHeaderKey.MESSAGE_ID.value)
 
-        val testScenarios: List<TestScenario<ClassRequestType, ApiErrorResponse>> = listOf(
+        val testScenarios: List<TestScenario<RequestType, ApiErrorResponse>> = listOf(
             TestScenario(
                 description = "Missing messageId header scenario",
+                endpoint = this.endpoint,
                 httpHeaders = headers,
                 requestBody = this.requestBody,
                 expectedHttpStatus = HttpStatus.BAD_REQUEST,
@@ -170,9 +174,10 @@ abstract class BaseApiIntegrationTest<ClassRequestType, ClassResponseType> {
         headers.add("Authorization", testAuthorizationToken)
         headers.remove(ApiHeaderKey.TIMESTAMP.value)
 
-        val testScenarios: List<TestScenario<ClassRequestType, ApiErrorResponse>> = listOf(
+        val testScenarios: List<TestScenario<RequestType, ApiErrorResponse>> = listOf(
             TestScenario(
                 description = "Missing timestamp header scenario",
+                endpoint = this.endpoint,
                 httpHeaders = headers,
                 requestBody = this.requestBody,
                 expectedHttpStatus = HttpStatus.BAD_REQUEST,
@@ -201,9 +206,10 @@ abstract class BaseApiIntegrationTest<ClassRequestType, ClassResponseType> {
         headers.add("Authorization", testAuthorizationToken)
         headers.set(ApiHeaderKey.TIMESTAMP.value, invalidTimestamp)
 
-        val testScenarios: List<TestScenario<ClassRequestType, ApiErrorResponse>> = listOf(
+        val testScenarios: List<TestScenario<RequestType, ApiErrorResponse>> = listOf(
             TestScenario(
                 description = "Invalid timestamp header scenario",
+                endpoint = this.endpoint,
                 httpHeaders = headers,
                 requestBody = this.requestBody,
                 expectedHttpStatus = HttpStatus.BAD_REQUEST,
@@ -227,18 +233,18 @@ abstract class BaseApiIntegrationTest<ClassRequestType, ClassResponseType> {
         runTestScenarios(testScenarios)
     }
 
-    private fun <RequestClass, ResponseClass> runTestScenarios(
-        testScenarios: List<TestScenario<RequestClass, ResponseClass>>
+    private fun <RequestType, ResponseType> runTestScenarios(
+        testScenarios: List<TestScenario<RequestType, ResponseType>>
     ){
-        for(scenario: TestScenario<RequestClass, ResponseClass> in testScenarios){
+        for(scenario: TestScenario<RequestType, ResponseType> in testScenarios){
             logger.info("Executing ${scenario.description}")
 
             //This is the pre scenario higher order function that is called before the scenario is executed
             //It is ideal for setting up data required for the test scenario
             scenario.preScenario()
 
-            val responseEntity: ResponseEntity<ResponseClass> = this.testRestTemplate.exchange(
-                "http://localhost:$port${this.url}",
+            val responseEntity: ResponseEntity<ResponseType> = this.testRestTemplate.exchange(
+                "http://localhost:$port${scenario.endpoint}",
                 this.httpMethod,
                 HttpEntity(scenario.requestBody, scenario.httpHeaders),
                 scenario.responseClass
@@ -250,33 +256,26 @@ abstract class BaseApiIntegrationTest<ClassRequestType, ClassResponseType> {
         }
     }
 
-    private fun <ResponseClass> assertResponse(
-        responseEntity: ResponseEntity<ResponseClass>,
+    private fun <ResponseType> assertResponse(
+        responseEntity: ResponseEntity<ResponseType>,
         expectedHttpStatus: HttpStatus,
-        expectedResponseBody: ResponseClass
+        expectedResponseBody: ResponseType
     ) {
         Assert.assertEquals(expectedHttpStatus, responseEntity.statusCode)
-        comparingResponseObject(expectedResponseBody, responseEntity.body)
+        assertResponseObject(expectedResponseBody, responseEntity.body)
     }
 
-    @Throws(JsonProcessingException::class)
-    private fun <ResponseClass> comparingResponseObject(
-        expected: ResponseClass,
-        actual: ResponseClass,
+    private fun <ResponseType> assertResponseObject(
+        expected: ResponseType,
+        actual: ResponseType,
         description: String = ""
     ) {
         try{
-            val objectMapper = ObjectMapper()
-            objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL)
-            assertThatJson(objectMapper.writeValueAsString(actual))
+            assertThatJson(TestHelper.convertToJsonString(actual))
                 .whenIgnoringPaths("header.timestamp", "header.messageId", "header.groupId")
+                .`when`(Option.IGNORING_EXTRA_FIELDS)
                 .describedAs(description)
-                .isEqualTo(
-                    objectMapper.writeValueAsString(
-                        expected
-                    )
-                )
-
+                .isEqualTo(TestHelper.convertToJsonString(expected))
         } catch(throwable:Throwable){
             throw AssertionError(throwable.localizedMessage, throwable)
         }

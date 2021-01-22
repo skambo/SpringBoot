@@ -6,7 +6,7 @@ import io.skambo.example.integration.utils.TestScenario
 import org.springframework.http.HttpMethod
 
 class DeleteUserApiIntegrationTest: BaseApiIntegrationTest<Unit, DeleteUserResponse>() {
-    override val url: String = "/api/v1/deleteUser"
+    override val endpoint: String = "/api/v1/deleteUser"
 
     override val httpMethod: HttpMethod = HttpMethod.DELETE
 
