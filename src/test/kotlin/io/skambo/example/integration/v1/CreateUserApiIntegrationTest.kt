@@ -54,7 +54,9 @@ class CreateUserApiIntegrationTest: BaseApiIntegrationTest<String, CreateUserRes
              missingDateOfBirthFieldScenario(),
              missingCityScenario(),
              missingEmailScenario(),
-             missingPhoneNumberScenario()
+             missingPhoneNumberScenario(),
+             missingHeaderScenario(),
+             missingRequestBodyScenario()
          )
     }
 
@@ -376,6 +378,87 @@ class CreateUserApiIntegrationTest: BaseApiIntegrationTest<String, CreateUserRes
                         errorMessage = ApiResponseHelper.lookupErrorMessage(
                             ErrorCodes.MISSING_PARAMETER_ERR_MSG.value, "phoneNumber"
                         )
+                    )
+                )
+            ),
+            responseClass = CreateUserResponse::class.java,
+            preScenario = preScenario,
+            postScenario = postScenario
+        )
+    }
+
+    private fun missingHeaderScenario(): TestScenario<String, CreateUserResponse> {
+        val preScenario: () -> Unit = {
+            Assert.assertFalse(this.userRepository.findByEmail(email).isPresent)
+            Assert.assertFalse(this.userRepository.findByPhoneNumber(phoneNumber).isPresent)
+        }
+
+        val postScenario: () -> Unit = {
+            Assert.assertFalse(this.userRepository.findByEmail(email).isPresent)
+            Assert.assertFalse(this.userRepository.findByPhoneNumber(phoneNumber).isPresent)
+        }
+
+        val missingHeaderBody: String = TestHelper.convertToJsonString(
+            mapOf(
+                "name" to name,
+                "dateOfBirth" to dateOfBirth,
+                "city" to city,
+                "email" to email,
+                "phoneNumber" to phoneNumber
+            )
+        )
+
+        return TestScenario(
+            description = "Missing header scenario",
+            endpoint = this.endpoint,
+            httpHeaders = this.httpHeaders,
+            requestBody = missingHeaderBody,
+            expectedHttpStatus = HttpStatus.BAD_REQUEST,
+            expectedResponseBody = CreateUserResponse(
+                header = Header(
+                    messageId = UUID.randomUUID().toString(),
+                    timestamp = OffsetDateTime.now(),
+                    responseStatus = Status(
+                        status = ResponseStatus.REJECTED.value,
+                        errorCode = ApiResponseHelper.lookupErrorCode(ErrorCodes.INVALID_REQUEST_ERR.value),
+                        errorMessage = ApiResponseHelper.lookupErrorMessage(
+                            ErrorCodes.MISSING_PARAMETER_ERR_MSG.value, "header"
+                        )
+                    )
+                )
+            ),
+            responseClass = CreateUserResponse::class.java,
+            preScenario = preScenario,
+            postScenario = postScenario
+        )
+    }
+
+
+    private fun missingRequestBodyScenario(): TestScenario<String, CreateUserResponse> {
+        val preScenario: () -> Unit = {
+            Assert.assertFalse(this.userRepository.findByEmail(email).isPresent)
+            Assert.assertFalse(this.userRepository.findByPhoneNumber(phoneNumber).isPresent)
+        }
+
+        val postScenario: () -> Unit = {
+            Assert.assertFalse(this.userRepository.findByEmail(email).isPresent)
+            Assert.assertFalse(this.userRepository.findByPhoneNumber(phoneNumber).isPresent)
+        }
+
+        return TestScenario(
+            description = "Missing request body scenario",
+            endpoint = this.endpoint,
+            httpHeaders = this.httpHeaders,
+            requestBody = null,
+            expectedHttpStatus = HttpStatus.BAD_REQUEST,
+            expectedResponseBody = CreateUserResponse(
+                header = Header(
+                    messageId = UUID.randomUUID().toString(),
+                    timestamp = OffsetDateTime.now(),
+                    responseStatus = Status(
+                        status = ResponseStatus.REJECTED.value,
+                        errorCode = ApiResponseHelper.lookupErrorCode(ErrorCodes.INVALID_REQUEST_ERR.value),
+                        errorMessage = "Required request body is missing: public org.springframework.http.ResponseEntity<io.skambo.example.infrastructure.api.createuser.v1.dto.CreateUserResponse> io.skambo.example.infrastructure.api.createuser.v1.CreateUserController.createUser(io.skambo.example.infrastructure.api.createuser.v1.dto.CreateUserRequest,javax.servlet.http.HttpServletRequest)"
                     )
                 )
             ),
