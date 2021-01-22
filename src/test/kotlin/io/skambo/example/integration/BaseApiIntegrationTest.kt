@@ -1,6 +1,7 @@
 package io.skambo.example.integration
 
 import io.skambo.example.ApiTestHelper
+import io.skambo.example.TestHelper
 import io.skambo.example.infrastructure.api.common.ApiHeaderKey
 import io.skambo.example.infrastructure.api.common.ErrorCodes
 import io.skambo.example.infrastructure.api.common.ResponseStatus
@@ -12,7 +13,9 @@ import io.skambo.example.infrastructure.persistence.jpa.repositories.UserReposit
 import io.skambo.example.integration.rules.ClearDatabaseRule
 import io.skambo.example.integration.utils.TestScenario
 import io.skambo.example.utils.gson.GsonFactory
+import net.javacrumbs.jsonunit.assertj.JsonAssert
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
+import net.javacrumbs.jsonunit.core.Option
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.jupiter.api.BeforeEach
@@ -268,10 +271,11 @@ abstract class BaseApiIntegrationTest<RequestType, ResponseType> {
         description: String = ""
     ) {
         try{
-            assertThatJson(GsonFactory.getGsonInstance().toJson(actual))
+            assertThatJson(TestHelper.convertToJsonString(actual))
                 .whenIgnoringPaths("header.timestamp", "header.messageId", "header.groupId")
+                .`when`(Option.IGNORING_EXTRA_FIELDS)
                 .describedAs(description)
-                .isEqualTo(GsonFactory.getGsonInstance().toJson(expected))
+                .isEqualTo(TestHelper.convertToJsonString(expected))
         } catch(throwable:Throwable){
             throw AssertionError(throwable.localizedMessage, throwable)
         }

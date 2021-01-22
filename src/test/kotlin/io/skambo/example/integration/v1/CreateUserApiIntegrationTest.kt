@@ -20,7 +20,7 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.*
 
-class CreateUserApiIntegrationTest: BaseApiIntegrationTest<String, String>() {
+class CreateUserApiIntegrationTest: BaseApiIntegrationTest<String, CreateUserResponse>() {
 
     final val header: Header = ApiTestHelper.createTestHeader()
     final val name: String = "Anne"
@@ -46,11 +46,11 @@ class CreateUserApiIntegrationTest: BaseApiIntegrationTest<String, String>() {
         )
     )
 
-    override fun createTestScenarios(): List<TestScenario<String, String>> {
-         return listOf(successScenario(), userExistsScenario())
+    override fun createTestScenarios(): List<TestScenario<String, CreateUserResponse>> {
+         return listOf(successScenario(), userExistsScenario(), missingNameFieldScenario())
     }
 
-    private fun successScenario(): TestScenario<String, String>{
+    private fun successScenario(): TestScenario<String, CreateUserResponse>{
         //This is a high order function
         val preScenario: () -> Unit = {
             Assert.assertFalse(this.userRepository.findByEmail(email).isPresent)
@@ -78,30 +78,28 @@ class CreateUserApiIntegrationTest: BaseApiIntegrationTest<String, String>() {
             httpHeaders = this.httpHeaders,
             requestBody = this.requestBody,
             expectedHttpStatus = HttpStatus.CREATED,
-            expectedResponseBody = TestHelper.convertToJsonString(
-                CreateUserResponse(
-                    header = Header(
-                        messageId = UUID.randomUUID().toString(),
-                        timestamp = OffsetDateTime.now(),
-                        responseStatus = Status(
-                            status = ResponseStatus.SUCCESS.value
-                        )
-                    ),
-                    id = 1L,
-                    name = name,
-                    dateOfBirth = dateOfBirth,
-                    city = city,
-                    email = email,
-                    phoneNumber = phoneNumber
-                )
+            expectedResponseBody = CreateUserResponse(
+                header = Header(
+                    messageId = UUID.randomUUID().toString(),
+                    timestamp = OffsetDateTime.now(),
+                    responseStatus = Status(
+                        status = ResponseStatus.SUCCESS.value
+                    )
+                ),
+                id = 1L,
+                name = name,
+                dateOfBirth = dateOfBirth,
+                city = city,
+                email = email,
+                phoneNumber = phoneNumber
             ),
-            responseClass = String::class.java,
+            responseClass = CreateUserResponse::class.java,
             preScenario = preScenario,
             postScenario = postScenario
         )
     }
 
-    private fun userExistsScenario(): TestScenario<String, String>{
+    private fun userExistsScenario(): TestScenario<String, CreateUserResponse>{
         //This is a high order function
         val preScenario: () -> Unit = {
             val existingUser: UserDataModel = UserDataModel(
@@ -132,20 +130,64 @@ class CreateUserApiIntegrationTest: BaseApiIntegrationTest<String, String>() {
             httpHeaders = this.httpHeaders,
             requestBody = this.requestBody,
             expectedHttpStatus = HttpStatus.BAD_REQUEST,
-            expectedResponseBody = TestHelper.convertToJsonString(
-                CreateUserResponse(
-                    header = Header(
-                        messageId = UUID.randomUUID().toString(),
-                        timestamp = OffsetDateTime.now(),
-                        responseStatus = Status(
-                            status = ResponseStatus.REJECTED.value,
-                            errorCode = ApiResponseHelper.lookupErrorCode(ErrorCodes.DUPLICATE_USER_ERR.value),
-                            errorMessage = ApiResponseHelper.lookupErrorMessage(ErrorCodes.DUPLICATE_USER_ERR.value)
+            expectedResponseBody = CreateUserResponse(
+                header = Header(
+                    messageId = UUID.randomUUID().toString(),
+                    timestamp = OffsetDateTime.now(),
+                    responseStatus = Status(
+                        status = ResponseStatus.REJECTED.value,
+                        errorCode = ApiResponseHelper.lookupErrorCode(ErrorCodes.DUPLICATE_USER_ERR.value),
+                        errorMessage = ApiResponseHelper.lookupErrorMessage(ErrorCodes.DUPLICATE_USER_ERR.value)
+                    )
+                )
+            ),
+            responseClass = CreateUserResponse::class.java,
+            preScenario = preScenario,
+            postScenario = postScenario
+        )
+    }
+
+    private fun missingNameFieldScenario(): TestScenario<String, CreateUserResponse> {
+        val preScenario: () -> Unit = {
+            Assert.assertFalse(this.userRepository.findByEmail(email).isPresent)
+            Assert.assertFalse(this.userRepository.findByPhoneNumber(phoneNumber).isPresent)
+        }
+
+        val postScenario: () -> Unit = {
+            Assert.assertFalse(this.userRepository.findByEmail(email).isPresent)
+            Assert.assertFalse(this.userRepository.findByPhoneNumber(phoneNumber).isPresent)
+        }
+
+        val missingNameRequestBody: String = TestHelper.convertToJsonString(
+            mapOf(
+                "header" to header,
+                "dateOfBirth" to dateOfBirth,
+                "city" to city,
+                "email" to email,
+                "phoneNumber" to phoneNumber
+            )
+        )
+
+        return TestScenario(
+            description = "Missing names scenario",
+            endpoint = this.endpoint,
+            httpHeaders = this.httpHeaders,
+            requestBody = missingNameRequestBody,
+            expectedHttpStatus = HttpStatus.BAD_REQUEST,
+            expectedResponseBody = CreateUserResponse(
+                header = Header(
+                    messageId = UUID.randomUUID().toString(),
+                    timestamp = OffsetDateTime.now(),
+                    responseStatus = Status(
+                        status = ResponseStatus.REJECTED.value,
+                        errorCode = ApiResponseHelper.lookupErrorCode(ErrorCodes.INVALID_REQUEST_ERR.value),
+                        errorMessage = ApiResponseHelper.lookupErrorMessage(
+                            ErrorCodes.MISSING_PARAMETER_ERR_MSG.value, "name"
                         )
                     )
                 )
             ),
-            responseClass = String::class.java,
+            responseClass = CreateUserResponse::class.java,
             preScenario = preScenario,
             postScenario = postScenario
         )
