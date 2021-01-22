@@ -47,7 +47,15 @@ class CreateUserApiIntegrationTest: BaseApiIntegrationTest<String, CreateUserRes
     )
 
     override fun createTestScenarios(): List<TestScenario<String, CreateUserResponse>> {
-         return listOf(successScenario(), userExistsScenario(), missingNameFieldScenario())
+         return listOf(
+             successScenario(),
+             userExistsScenario(),
+             missingNameFieldScenario(),
+             missingDateOfBirthFieldScenario(),
+             missingCityScenario(),
+             missingEmailScenario(),
+             missingPhoneNumberScenario()
+         )
     }
 
     private fun successScenario(): TestScenario<String, CreateUserResponse>{
@@ -183,6 +191,190 @@ class CreateUserApiIntegrationTest: BaseApiIntegrationTest<String, CreateUserRes
                         errorCode = ApiResponseHelper.lookupErrorCode(ErrorCodes.INVALID_REQUEST_ERR.value),
                         errorMessage = ApiResponseHelper.lookupErrorMessage(
                             ErrorCodes.MISSING_PARAMETER_ERR_MSG.value, "name"
+                        )
+                    )
+                )
+            ),
+            responseClass = CreateUserResponse::class.java,
+            preScenario = preScenario,
+            postScenario = postScenario
+        )
+    }
+
+    private fun missingDateOfBirthFieldScenario(): TestScenario<String, CreateUserResponse> {
+        val preScenario: () -> Unit = {
+            Assert.assertFalse(this.userRepository.findByEmail(email).isPresent)
+            Assert.assertFalse(this.userRepository.findByPhoneNumber(phoneNumber).isPresent)
+        }
+
+        val postScenario: () -> Unit = {
+            Assert.assertFalse(this.userRepository.findByEmail(email).isPresent)
+            Assert.assertFalse(this.userRepository.findByPhoneNumber(phoneNumber).isPresent)
+        }
+
+        val missingDateOfBirthRequestBody: String = TestHelper.convertToJsonString(
+            mapOf(
+                "header" to header,
+                "name" to name,
+                "city" to city,
+                "email" to email,
+                "phoneNumber" to phoneNumber
+            )
+        )
+
+        return TestScenario(
+            description = "Missing date of birth scenario",
+            endpoint = this.endpoint,
+            httpHeaders = this.httpHeaders,
+            requestBody = missingDateOfBirthRequestBody,
+            expectedHttpStatus = HttpStatus.BAD_REQUEST,
+            expectedResponseBody = CreateUserResponse(
+                header = Header(
+                    messageId = UUID.randomUUID().toString(),
+                    timestamp = OffsetDateTime.now(),
+                    responseStatus = Status(
+                        status = ResponseStatus.REJECTED.value,
+                        errorCode = ApiResponseHelper.lookupErrorCode(ErrorCodes.INVALID_REQUEST_ERR.value),
+                        errorMessage = ApiResponseHelper.lookupErrorMessage(
+                            ErrorCodes.MISSING_PARAMETER_ERR_MSG.value, "dateOfBirth"
+                        )
+                    )
+                )
+            ),
+            responseClass = CreateUserResponse::class.java,
+            preScenario = preScenario,
+            postScenario = postScenario
+        )
+    }
+
+    private fun missingCityScenario(): TestScenario<String, CreateUserResponse> {
+        val preScenario: () -> Unit = {
+            Assert.assertFalse(this.userRepository.findByEmail(email).isPresent)
+            Assert.assertFalse(this.userRepository.findByPhoneNumber(phoneNumber).isPresent)
+        }
+
+        val postScenario: () -> Unit = {
+            Assert.assertFalse(this.userRepository.findByEmail(email).isPresent)
+            Assert.assertFalse(this.userRepository.findByPhoneNumber(phoneNumber).isPresent)
+        }
+
+        val missingCityRequestBody: String = TestHelper.convertToJsonString(
+            mapOf(
+                "header" to header,
+                "name" to name,
+                "dateOfBirth" to dateOfBirth,
+                "email" to email,
+                "phoneNumber" to phoneNumber
+            )
+        )
+
+        return TestScenario(
+            description = "Missing city scenario",
+            endpoint = this.endpoint,
+            httpHeaders = this.httpHeaders,
+            requestBody = missingCityRequestBody,
+            expectedHttpStatus = HttpStatus.BAD_REQUEST,
+            expectedResponseBody = CreateUserResponse(
+                header = Header(
+                    messageId = UUID.randomUUID().toString(),
+                    timestamp = OffsetDateTime.now(),
+                    responseStatus = Status(
+                        status = ResponseStatus.REJECTED.value,
+                        errorCode = ApiResponseHelper.lookupErrorCode(ErrorCodes.INVALID_REQUEST_ERR.value),
+                        errorMessage = ApiResponseHelper.lookupErrorMessage(
+                            ErrorCodes.MISSING_PARAMETER_ERR_MSG.value, "city"
+                        )
+                    )
+                )
+            ),
+            responseClass = CreateUserResponse::class.java,
+            preScenario = preScenario,
+            postScenario = postScenario
+        )
+    }
+
+    private fun missingEmailScenario(): TestScenario<String, CreateUserResponse> {
+        val preScenario: () -> Unit = {
+            Assert.assertFalse(this.userRepository.findByEmail(email).isPresent)
+            Assert.assertFalse(this.userRepository.findByPhoneNumber(phoneNumber).isPresent)
+        }
+
+        val postScenario: () -> Unit = {
+            Assert.assertFalse(this.userRepository.findByEmail(email).isPresent)
+            Assert.assertFalse(this.userRepository.findByPhoneNumber(phoneNumber).isPresent)
+        }
+
+        val missingCityRequestBody: String = TestHelper.convertToJsonString(
+            mapOf(
+                "header" to header,
+                "name" to name,
+                "dateOfBirth" to dateOfBirth,
+                "city" to city,
+                "phoneNumber" to phoneNumber
+            )
+        )
+
+        return TestScenario(
+            description = "Missing email scenario",
+            endpoint = this.endpoint,
+            httpHeaders = this.httpHeaders,
+            requestBody = missingCityRequestBody,
+            expectedHttpStatus = HttpStatus.BAD_REQUEST,
+            expectedResponseBody = CreateUserResponse(
+                header = Header(
+                    messageId = UUID.randomUUID().toString(),
+                    timestamp = OffsetDateTime.now(),
+                    responseStatus = Status(
+                        status = ResponseStatus.REJECTED.value,
+                        errorCode = ApiResponseHelper.lookupErrorCode(ErrorCodes.INVALID_REQUEST_ERR.value),
+                        errorMessage = ApiResponseHelper.lookupErrorMessage(
+                            ErrorCodes.MISSING_PARAMETER_ERR_MSG.value, "email"
+                        )
+                    )
+                )
+            ),
+            responseClass = CreateUserResponse::class.java,
+            preScenario = preScenario,
+            postScenario = postScenario
+        )
+    }
+
+    private fun missingPhoneNumberScenario(): TestScenario<String, CreateUserResponse> {
+        val preScenario: () -> Unit = {
+            Assert.assertFalse(this.userRepository.findByEmail(email).isPresent)
+            Assert.assertFalse(this.userRepository.findByPhoneNumber(phoneNumber).isPresent)
+        }
+
+        val postScenario: () -> Unit = {
+            Assert.assertFalse(this.userRepository.findByEmail(email).isPresent)
+            Assert.assertFalse(this.userRepository.findByPhoneNumber(phoneNumber).isPresent)
+        }
+
+        val missingCityRequestBody: String = TestHelper.convertToJsonString(
+            mapOf(
+                "header" to header,
+                "name" to name,
+                "dateOfBirth" to dateOfBirth,
+                "city" to city,
+                "email" to email
+            )
+        )
+
+        return TestScenario(
+            description = "Missing phone number scenario",
+            endpoint = this.endpoint,
+            httpHeaders = this.httpHeaders,
+            requestBody = missingCityRequestBody,
+            expectedHttpStatus = HttpStatus.BAD_REQUEST,
+            expectedResponseBody = CreateUserResponse(
+                header = Header(
+                    messageId = UUID.randomUUID().toString(),
+                    timestamp = OffsetDateTime.now(),
+                    responseStatus = Status(
+                        status = ResponseStatus.REJECTED.value,
+                        errorCode = ApiResponseHelper.lookupErrorCode(ErrorCodes.INVALID_REQUEST_ERR.value),
+                        errorMessage = ApiResponseHelper.lookupErrorMessage(
+                            ErrorCodes.MISSING_PARAMETER_ERR_MSG.value, "phoneNumber"
                         )
                     )
                 )
