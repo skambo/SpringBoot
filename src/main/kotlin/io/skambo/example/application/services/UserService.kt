@@ -62,15 +62,25 @@ class UserService(private val userRepository: UserRepository) {
     }
 
     @Throws(UserNotFoundException::class)
-    fun findUserById(userId:Long): User {
-        val userDataModel:UserDataModel = findUserDataModelById(userId)
-        return userDataModelToUser(userDataModel)
+    fun findUserById(userId:String): User {
+        try{
+            val userIdLong: Long = userId.toLong()
+            val userDataModel:UserDataModel = findUserDataModelById(userIdLong)
+            return userDataModelToUser(userDataModel)
+        } catch(numberFormatException: NumberFormatException){
+            throw UserNotFoundException(message = "User with id '$userId' not found", cause = numberFormatException)
+        }
     }
 
     @Throws(UserNotFoundException::class)
-    fun deleteUser(userId:Long){
-        val userDataModel:UserDataModel = findUserDataModelById(userId)
-        userRepository.delete(userDataModel)
+    fun deleteUser(userId:String){
+        try{
+            val userIdLong: Long = userId.toLong()
+            val userDataModel:UserDataModel = findUserDataModelById(userIdLong)
+            userRepository.delete(userDataModel)
+        } catch(numberFormatException: NumberFormatException){
+            throw UserNotFoundException(message = "User with id '$userId' not found", cause = numberFormatException)
+        }
     }
 
     private fun findUserDataModelById(userId:Long) : UserDataModel {

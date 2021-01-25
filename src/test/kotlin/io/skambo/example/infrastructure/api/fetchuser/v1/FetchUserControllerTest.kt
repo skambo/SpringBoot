@@ -64,8 +64,9 @@ class FetchUserControllerTest {
 
     @Test
     fun testFetchUser(){
-        `when`(mockUserService.findUserById(userId)).thenReturn(mockUser)
-         val actualResponse:ResponseEntity<FetchUserResponse> = testFetchUserController.fetchUser(userId, testHttpServletRequest)
+        `when`(mockUserService.findUserById(userId.toString())).thenReturn(mockUser)
+         val actualResponse:ResponseEntity<FetchUserResponse> = testFetchUserController
+             .fetchUser(userId.toString(), testHttpServletRequest)
 
         Assert.assertEquals(HttpStatus.OK, actualResponse.statusCode)
         Assert.assertNotNull(actualResponse.body)
@@ -80,35 +81,35 @@ class FetchUserControllerTest {
         Assert.assertEquals(mockUser.email, responseBody.email)
         Assert.assertEquals(mockUser.phoneNumber, responseBody.phoneNumber)
 
-        verify(mockUserService, Mockito.times(1)).findUserById(userId)
+        verify(mockUserService, Mockito.times(1)).findUserById(userId.toString())
     }
 
     @Test
     fun testFetchUser_InvalidUserId_ReturnsNotFoundError(){
         val userNotFoundException: UserNotFoundException = UserNotFoundException("User not found")
 
-        doThrow(userNotFoundException).`when`(mockUserService).findUserById(userId)
+        doThrow(userNotFoundException).`when`(mockUserService).findUserById(userId.toString())
 
         val thrownException: UserNotFoundException = Assert.assertThrows(UserNotFoundException::class.java){
-            testFetchUserController.fetchUser(userId, testHttpServletRequest)
+            testFetchUserController.fetchUser(userId.toString(), testHttpServletRequest)
         }
 
         Assert.assertEquals(userNotFoundException, thrownException)
 
-        verify(mockUserService, Mockito.times(1)).findUserById(userId)
+        verify(mockUserService, Mockito.times(1)).findUserById(userId.toString())
     }
 
     @Test
     fun testFetchUser_UnexpectedException_Propagated(){
         val unexpectedException: RuntimeException = RuntimeException("An unexpected error occurred")
 
-        `when`(mockUserService.findUserById(userId)).thenThrow(unexpectedException)
+        `when`(mockUserService.findUserById(userId.toString())).thenThrow(unexpectedException)
 
         val thrownException:RuntimeException = Assert.assertThrows(RuntimeException::class.java){
-            testFetchUserController.fetchUser(userId, testHttpServletRequest)
+            testFetchUserController.fetchUser(userId.toString(), testHttpServletRequest)
         }
 
         Assert.assertEquals(unexpectedException, thrownException)
-        verify(mockUserService, Mockito.times(1)).findUserById(userId)
+        verify(mockUserService, Mockito.times(1)).findUserById(userId.toString())
     }
 }

@@ -18,7 +18,7 @@ class UpdateUserController(private val userService: UserService) {
     @PatchMapping(value = ["updateUser/{id}"])
     fun updateUser(
         @RequestBody updateUserRequest: UpdateUserRequest,
-        @PathVariable("id") userId:Long,
+        @PathVariable("id") userId:String,
         httpRequest: HttpServletRequest
     ): ResponseEntity<UpdateUserResponse> {
         val user:User = userService.findUserById(userId)

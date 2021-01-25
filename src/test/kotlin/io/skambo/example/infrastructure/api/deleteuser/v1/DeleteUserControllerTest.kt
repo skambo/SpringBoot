@@ -64,8 +64,9 @@ class DeleteUserControllerTest {
 
     @Test
     fun testDeleteUser(){
-        doNothing().`when`(mockUserService).deleteUser(userId)
-        val actualResponse: ResponseEntity<DeleteUserResponse> = testDeleteUserController.deleteUser(userId, testHttpServletRequest)
+        doNothing().`when`(mockUserService).deleteUser(userId.toString())
+        val actualResponse: ResponseEntity<DeleteUserResponse> = testDeleteUserController
+            .deleteUser(userId.toString(), testHttpServletRequest)
 
         Assert.assertEquals(HttpStatus.OK, actualResponse.statusCode)
         Assert.assertNotNull(actualResponse.body)
@@ -75,35 +76,35 @@ class DeleteUserControllerTest {
         Assert.assertNotNull(responseBody.header.messageId)
         Assert.assertNotNull(responseBody.header.timestamp)
 
-        verify(mockUserService, Mockito.times(1)).deleteUser(userId)
+        verify(mockUserService, Mockito.times(1)).deleteUser(userId.toString())
     }
 
     @Test
     fun testDeleteUser_InvalidUserId_ReturnsNotFoundError(){
         val userNotFoundException: UserNotFoundException = UserNotFoundException("User not found")
 
-        doThrow(userNotFoundException).`when`(mockUserService).deleteUser(userId)
+        doThrow(userNotFoundException).`when`(mockUserService).deleteUser(userId.toString())
 
         val thrownException: UserNotFoundException = Assert.assertThrows(UserNotFoundException::class.java){
-            testDeleteUserController.deleteUser(userId, testHttpServletRequest)
+            testDeleteUserController.deleteUser(userId.toString(), testHttpServletRequest)
         }
 
         Assert.assertEquals(userNotFoundException, thrownException)
 
-        verify(mockUserService, Mockito.times(1)).deleteUser(userId)
+        verify(mockUserService, Mockito.times(1)).deleteUser(userId.toString())
     }
 
     @Test
     fun testDeleteUser_UnexpectedException_Propagated(){
         val unexpectedException: RuntimeException = RuntimeException("An unexpected error occurred")
 
-        `when`(mockUserService.deleteUser(userId)).thenThrow(unexpectedException)
+        `when`(mockUserService.deleteUser(userId.toString())).thenThrow(unexpectedException)
 
         val thrownException:RuntimeException = Assert.assertThrows(RuntimeException::class.java){
-            testDeleteUserController.deleteUser(userId, testHttpServletRequest)
+            testDeleteUserController.deleteUser(userId.toString(), testHttpServletRequest)
         }
 
         Assert.assertEquals(unexpectedException, thrownException)
-        verify(mockUserService, Mockito.times(1)).deleteUser(userId)
+        verify(mockUserService, Mockito.times(1)).deleteUser(userId.toString())
     }
 }

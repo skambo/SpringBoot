@@ -5,7 +5,7 @@ import io.skambo.example.infrastructure.api.common.ResponseStatus
 import io.skambo.example.infrastructure.api.common.dto.v1.Header
 import io.skambo.example.infrastructure.api.common.dto.v1.Status
 import io.skambo.example.infrastructure.api.common.helpers.ApiResponseHelper
-import io.skambo.example.infrastructure.api.deleteuser.v1.dto.DeleteUserResponse
+import io.skambo.example.infrastructure.api.fetchuser.v1.dto.FetchUserResponse
 import io.skambo.example.infrastructure.persistence.jpa.entities.UserDataModel
 import io.skambo.example.integration.BaseApiIntegrationTest
 import io.skambo.example.integration.utils.TestScenario
@@ -18,7 +18,7 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.*
 
-class DeleteUserApiIntegrationTest: BaseApiIntegrationTest<Unit, DeleteUserResponse>() {
+class FetchUserApiIntegrationTest: BaseApiIntegrationTest<Unit, FetchUserResponse>() {
     private var userId: Long = 1L
     private final val name: String = "Anne"
     private final val dateOfBirth: OffsetDateTime = LocalDateTime
@@ -28,20 +28,20 @@ class DeleteUserApiIntegrationTest: BaseApiIntegrationTest<Unit, DeleteUserRespo
     private final val email: String = "anne@gmail.com"
     private final val phoneNumber: String = "1224"
 
-    override val endpoint: String = "/api/v1/deleteUser/"
+    override val endpoint: String = "/api/v1/fetchUser/"
 
-    override val httpMethod: HttpMethod = HttpMethod.DELETE
+    override val httpMethod: HttpMethod = HttpMethod.GET
 
     override val requestBody: Unit? = null
 
-    override fun createTestScenarios(): List<TestScenario<Unit, DeleteUserResponse>> {
+    override fun createTestScenarios(): List<TestScenario<Unit, FetchUserResponse>> {
         return listOf(successScenario(), userNotFoundScenario(), invalidUserIdScenario())
     }
 
-    private fun successScenario(): TestScenario<Unit, DeleteUserResponse>{
+    private fun successScenario(): TestScenario<Unit, FetchUserResponse>{
         //This is a high order function
         val preScenario: () -> Unit = {
-            val existingUser: UserDataModel = UserDataModel(
+            val createdUser: UserDataModel = UserDataModel(
                 name = name,
                 dateOfBirth = dateOfBirth.toString(),
                 city = city,
@@ -49,38 +49,44 @@ class DeleteUserApiIntegrationTest: BaseApiIntegrationTest<Unit, DeleteUserRespo
                 phoneNumber = phoneNumber
             )
 
-            this.userRepository.save(existingUser)
+            this.userRepository.save(createdUser)
 
             Assert.assertTrue(this.userRepository.findById(userId).isPresent)
         }
 
         val postScenario: () -> Unit = {
             val optionalUser: Optional<UserDataModel> = this.userRepository.findById(userId)
-            Assert.assertFalse(optionalUser.isPresent)
+            Assert.assertTrue(optionalUser.isPresent)
         }
 
         return TestScenario(
-            description = "Delete a user scenario",
+            description = "Fetch user scenario",
             endpoint = "${this.endpoint}$userId",
             httpHeaders = this.httpHeaders,
             requestBody = this.requestBody,
             expectedHttpStatus = HttpStatus.OK,
-            expectedResponseBody = DeleteUserResponse(
+            expectedResponseBody = FetchUserResponse(
                 header = Header(
                     messageId = UUID.randomUUID().toString(),
                     timestamp = OffsetDateTime.now(),
                     responseStatus = Status(
                         status = ResponseStatus.SUCCESS.value
                     )
-                )
+                ),
+                id = userId,
+                name = name,
+                dateOfBirth = dateOfBirth,
+                city = city,
+                email = email,
+                phoneNumber = phoneNumber
             ),
-            responseClass = DeleteUserResponse::class.java,
+            responseClass = FetchUserResponse::class.java,
             preScenario = preScenario,
             postScenario = postScenario
         )
     }
 
-    private fun userNotFoundScenario(): TestScenario<Unit, DeleteUserResponse>{
+    private fun userNotFoundScenario(): TestScenario<Unit, FetchUserResponse>{
         val userId: Long = 1000L
 
         //This is a high order function
@@ -98,7 +104,7 @@ class DeleteUserApiIntegrationTest: BaseApiIntegrationTest<Unit, DeleteUserRespo
             httpHeaders = this.httpHeaders,
             requestBody = this.requestBody,
             expectedHttpStatus = HttpStatus.BAD_REQUEST,
-            expectedResponseBody = DeleteUserResponse(
+            expectedResponseBody = FetchUserResponse(
                 header = Header(
                     messageId = UUID.randomUUID().toString(),
                     timestamp = OffsetDateTime.now(),
@@ -109,13 +115,13 @@ class DeleteUserApiIntegrationTest: BaseApiIntegrationTest<Unit, DeleteUserRespo
                     )
                 )
             ),
-            responseClass = DeleteUserResponse::class.java,
+            responseClass = FetchUserResponse::class.java,
             preScenario = preScenario,
             postScenario = postScenario
         )
     }
 
-    private fun invalidUserIdScenario(): TestScenario<Unit, DeleteUserResponse>{
+    private fun invalidUserIdScenario(): TestScenario<Unit, FetchUserResponse>{
         val userId: String = "Ten"
 
         //This is a high order function
@@ -129,7 +135,7 @@ class DeleteUserApiIntegrationTest: BaseApiIntegrationTest<Unit, DeleteUserRespo
             httpHeaders = this.httpHeaders,
             requestBody = this.requestBody,
             expectedHttpStatus = HttpStatus.BAD_REQUEST,
-            expectedResponseBody = DeleteUserResponse(
+            expectedResponseBody = FetchUserResponse(
                 header = Header(
                     messageId = UUID.randomUUID().toString(),
                     timestamp = OffsetDateTime.now(),
@@ -140,7 +146,7 @@ class DeleteUserApiIntegrationTest: BaseApiIntegrationTest<Unit, DeleteUserRespo
                     )
                 )
             ),
-            responseClass = DeleteUserResponse::class.java,
+            responseClass = FetchUserResponse::class.java,
             preScenario = preScenario,
             postScenario = postScenario
         )
