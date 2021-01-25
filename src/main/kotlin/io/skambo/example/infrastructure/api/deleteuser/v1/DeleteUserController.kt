@@ -20,7 +20,7 @@ class DeleteUserController(private val userService: UserService) {
     // TODO Fix adherence to API standards
     @RequestMapping(value = ["deleteUser/{id}"])
     fun deleteUser(
-        @PathVariable ("id") userId:Long,
+        @PathVariable ("id") userId:String,
         request: HttpServletRequest
     ): ResponseEntity<DeleteUserResponse>{
         userService.deleteUser(userId)

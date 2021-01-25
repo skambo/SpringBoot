@@ -72,11 +72,11 @@ class UpdateUserControllerTest {
 
     @Test
     fun testUpdateUser(){
-        `when`(mockUserService.findUserById(userId)).thenReturn(existingUser)
+        `when`(mockUserService.findUserById(userId.toString())).thenReturn(existingUser)
         doNothing().`when`(mockUserService).updateUser(mockUpdatedUser)
 
         val actualResponse: ResponseEntity<UpdateUserResponse> = testUpdateUserController
-            .updateUser(testUpdateUserRequest, userId, testHttpServletRequest)
+            .updateUser(testUpdateUserRequest, userId.toString(), testHttpServletRequest)
 
         Assert.assertEquals(HttpStatus.OK, actualResponse.statusCode)
         Assert.assertNotNull(actualResponse.body)
@@ -89,7 +89,7 @@ class UpdateUserControllerTest {
         Assert.assertNull(actualResponse.body?.header?.responseStatus?.errorCode)
         Assert.assertNull(actualResponse.body?.header?.responseStatus?.errorMessage)
 
-        verify(mockUserService, times(1 )).findUserById(userId)
+        verify(mockUserService, times(1 )).findUserById(userId.toString())
         verify(mockUserService, times(1 )).updateUser(mockUpdatedUser)
     }
 
@@ -97,15 +97,15 @@ class UpdateUserControllerTest {
     fun testUpdateUser_InvalidUserId_ThrowsUserNotFoundException(){
         val userNotFoundException: UserNotFoundException = UserNotFoundException("User not found")
 
-       `when`(mockUserService.findUserById(userId)).thenThrow(userNotFoundException)
+       `when`(mockUserService.findUserById(userId.toString())).thenThrow(userNotFoundException)
 
         val thrownException: UserNotFoundException = Assert.assertThrows(UserNotFoundException::class.java){
-            testUpdateUserController.updateUser(testUpdateUserRequest, userId, testHttpServletRequest)
+            testUpdateUserController.updateUser(testUpdateUserRequest, userId.toString(), testHttpServletRequest)
         }
 
         Assert.assertEquals(userNotFoundException, thrownException)
 
-        verify(mockUserService, times(1)).findUserById(userId)
+        verify(mockUserService, times(1)).findUserById(userId.toString())
         verify(mockUserService, never()).updateUser(mockUpdatedUser)
     }
 
@@ -113,14 +113,14 @@ class UpdateUserControllerTest {
     fun testUpdateUser_UnexpectedException_Propagated(){
         val unexpectedException: RuntimeException = RuntimeException("An unexpected error occurred")
 
-        `when`(mockUserService.findUserById(userId)).thenThrow(unexpectedException)
+        `when`(mockUserService.findUserById(userId.toString())).thenThrow(unexpectedException)
 
         val thrownException:RuntimeException = Assert.assertThrows(RuntimeException::class.java){
-            testUpdateUserController.updateUser(testUpdateUserRequest, userId, testHttpServletRequest)
+            testUpdateUserController.updateUser(testUpdateUserRequest, userId.toString(), testHttpServletRequest)
         }
 
         Assert.assertEquals(unexpectedException, thrownException)
-        verify(mockUserService, times(1)).findUserById(userId)
+        verify(mockUserService, times(1)).findUserById(userId.toString())
         verify(mockUserService, never()).updateUser(mockUpdatedUser)
     }
 }

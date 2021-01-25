@@ -11,6 +11,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.doNothing
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.verify
@@ -253,7 +254,7 @@ class UserServiceTest {
             email = testUserDataModel.email,
             phoneNumber = testUserDataModel.phoneNumber
         )
-        val actualResponse:User = testUserService.findUserById(userId)
+        val actualResponse:User = testUserService.findUserById(userId.toString())
         Assert.assertEquals(expectedResponse, actualResponse)
         verify(mockUserRepository, times(1)).findById(userId)
     }
@@ -264,7 +265,7 @@ class UserServiceTest {
         `when`(mockUserRepository.findById(userId)).thenReturn(Optional.empty())
 
         val thrownException = Assert.assertThrows(UserNotFoundException::class.java){
-            testUserService.findUserById(userId)
+            testUserService.findUserById(userId.toString())
         }
 
         val expectedExceptionMessage: String = "User with id $userId not found"
@@ -274,13 +275,23 @@ class UserServiceTest {
     }
 
     @Test
+    fun testFindUserById_IdTypeCastFailure_ThrowsUserNotFoundException(){
+        val userId: String = "Ten"
+
+        Assert.assertThrows(UserNotFoundException::class.java){
+            testUserService.findUserById(userId)
+        }
+        verify(mockUserRepository, times(0)).findById(any())
+    }
+
+    @Test
     fun testFindUserById_UnexpectedExceptions_ArePropagated(){
         val userId: Long = 1L
         val unexpectedException: RuntimeException = RuntimeException("Runtime exception")
         `when`(mockUserRepository.findById(userId)).thenThrow(unexpectedException)
 
         val thrownException = Assert.assertThrows(RuntimeException::class.java){
-            testUserService.findUserById(userId)
+            testUserService.findUserById(userId.toString())
         }
 
         Assert.assertEquals(unexpectedException, thrownException)
@@ -294,7 +305,7 @@ class UserServiceTest {
         `when`(mockUserRepository.findById(userId)).thenReturn(Optional.of(testUserDataModel))
         doNothing().`when`(mockUserRepository).delete(testUserDataModel)
 
-        testUserService.deleteUser(userId)
+        testUserService.deleteUser(userId.toString())
         verify(mockUserRepository, times(1)).delete(testUserDataModel)
     }
 
@@ -305,7 +316,7 @@ class UserServiceTest {
         doNothing().`when`(mockUserRepository).delete(testUserDataModel)
 
         val thrownException = Assert.assertThrows(UserNotFoundException::class.java){
-            testUserService.deleteUser(userId)
+            testUserService.deleteUser(userId.toString())
         }
 
         val expectedExceptionMessage: String = "User with id $userId not found"
@@ -316,6 +327,16 @@ class UserServiceTest {
     }
 
     @Test
+    fun testDeleteUser_IdTypeCastFailure_ThrowsUserNotFoundException(){
+        val userId: String = "Ten"
+
+        Assert.assertThrows(UserNotFoundException::class.java){
+            testUserService.deleteUser(userId)
+        }
+        verify(mockUserRepository, times(0)).delete(any())
+    }
+
+    @Test
     fun testDeleteUser_UnexpectedExceptions_ArePropagated(){
         val userId: Long = 1L
         val unexpectedException: RuntimeException = RuntimeException("Runtime exception")
@@ -323,7 +344,7 @@ class UserServiceTest {
         `when`(mockUserRepository.delete(testUserDataModel)).thenThrow(unexpectedException)
 
         val thrownException = Assert.assertThrows(RuntimeException::class.java){
-            testUserService.deleteUser(userId)
+            testUserService.deleteUser(userId.toString())
         }
 
         Assert.assertEquals(unexpectedException, thrownException)

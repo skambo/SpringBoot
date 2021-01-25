@@ -23,7 +23,7 @@ class FetchUserController(private val userService: UserService){
 
     @GetMapping(value = ["fetchUser/{id}"])
     fun fetchUser(
-        @PathVariable("id") userId:Long,
+        @PathVariable("id") userId:String,
         httpRequest: HttpServletRequest
     ): ResponseEntity<FetchUserResponse>{
         val user:User = userService.findUserById(userId)
