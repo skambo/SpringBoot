@@ -67,7 +67,7 @@ class DeleteUserControllerTest {
         doNothing().`when`(mockUserService).deleteUser(userId)
         val actualResponse: ResponseEntity<DeleteUserResponse> = testDeleteUserController.deleteUser(userId, testHttpServletRequest)
 
-        Assert.assertEquals(HttpStatus.NO_CONTENT, actualResponse.statusCode)
+        Assert.assertEquals(HttpStatus.OK, actualResponse.statusCode)
         Assert.assertNotNull(actualResponse.body)
 
         val responseBody: DeleteUserResponse = actualResponse.body!!
