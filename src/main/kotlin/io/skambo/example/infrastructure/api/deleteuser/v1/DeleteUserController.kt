@@ -25,11 +25,13 @@ class DeleteUserController(private val userService: UserService) {
     ): ResponseEntity<DeleteUserResponse>{
         userService.deleteUser(userId)
         val header: Header = ApiResponseHelper.createBasicHeaderFromHttpRequestHeader(httpRequest = request)
-        val response:DeleteUserResponse = DeleteUserResponse(header = header)
+        val response:DeleteUserResponse = DeleteUserResponse(
+            header = ApiResponseHelper.createSuccessHeader(request, header)
+        )
         return ApiResponseHelper.createResponseEntity<DeleteUserResponse>(
             responseHeader = response.header,
             body = response,
-            httpStatusCode = HttpStatus.NO_CONTENT
+            httpStatusCode = HttpStatus.OK
         )
     }
 }

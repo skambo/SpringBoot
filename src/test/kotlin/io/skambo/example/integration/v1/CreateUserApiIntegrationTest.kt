@@ -22,14 +22,14 @@ import java.util.*
 
 class CreateUserApiIntegrationTest: BaseApiIntegrationTest<String, CreateUserResponse>() {
 
-    final val header: Header = ApiTestHelper.createTestHeader()
-    final val name: String = "Anne"
-    final val dateOfBirth: OffsetDateTime = LocalDateTime
+    private final val header: Header = ApiTestHelper.createTestHeader()
+    private final val name: String = "Anne"
+    private final val dateOfBirth: OffsetDateTime = LocalDateTime
         .parse("2017-02-03 12:30:30", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
         .atOffset(ZoneOffset.UTC)
-    final val city: String = "Nairobi"
-    final val email: String = "anne@gmail.com"
-    final val phoneNumber: String = "1224"
+    private final val city: String = "Nairobi"
+    private final val email: String = "anne@gmail.com"
+    private final val phoneNumber: String = "1224"
 
     override val endpoint: String = "/api/v1/createUser"
 
