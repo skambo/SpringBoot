@@ -223,7 +223,23 @@ tasks.withType<KotlinCompile> {
 
 tasks.test {
     useJUnitPlatform()
+    exclude("io/skambo/example/integration/**")
+    testLogging {
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+    }
 }
+
+task<Test>("integrationTest") {
+    useJUnitPlatform()
+    filter {
+        includeTestsMatching("io.skambo.example.integration.*")
+    }
+
+    testLogging {
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+    }
+}
+
 
 jacoco {
     toolVersion = "0.8.4"
