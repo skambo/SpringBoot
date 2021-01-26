@@ -19,7 +19,6 @@ import javax.servlet.http.HttpServletRequest
 @RequestMapping(value = ["v1/"])
 class CreateUserController(private val userService: UserService){
 
-    // TODO Fix adherence to API standards
     @PostMapping(value = ["createUser"])
     fun createUser(
         @RequestBody createUserRequest: CreateUserRequest,

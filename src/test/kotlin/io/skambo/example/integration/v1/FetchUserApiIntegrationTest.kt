@@ -19,7 +19,6 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 
 class FetchUserApiIntegrationTest: BaseApiIntegrationTest<Unit, FetchUserResponse>() {
-    private var userId: Long = 1L
     private final val name: String = "Anne"
     private final val dateOfBirth: OffsetDateTime = LocalDateTime
         .parse("2017-02-03 12:30:30", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
@@ -39,18 +38,20 @@ class FetchUserApiIntegrationTest: BaseApiIntegrationTest<Unit, FetchUserRespons
     }
 
     private fun successScenario(): TestScenario<Unit, FetchUserResponse>{
+        val createdUser: UserDataModel = UserDataModel(
+            name = name,
+            dateOfBirth = dateOfBirth.toString(),
+            city = city,
+            email = email,
+            phoneNumber = phoneNumber
+        )
+
+        this.userRepository.save(createdUser)
+
+        val userId: Long = this.userRepository.findByEmail(email).get().id!!
+
         //This is a high order function
         val preScenario: () -> Unit = {
-            val createdUser: UserDataModel = UserDataModel(
-                name = name,
-                dateOfBirth = dateOfBirth.toString(),
-                city = city,
-                email = email,
-                phoneNumber = phoneNumber
-            )
-
-            this.userRepository.save(createdUser)
-
             Assert.assertTrue(this.userRepository.findById(userId).isPresent)
         }
 

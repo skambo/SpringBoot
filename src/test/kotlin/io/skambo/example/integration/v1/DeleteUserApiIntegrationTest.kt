@@ -19,7 +19,7 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 
 class DeleteUserApiIntegrationTest: BaseApiIntegrationTest<Unit, DeleteUserResponse>() {
-    private var userId: Long = 1L
+    //private var userId: Long = null
     private final val name: String = "Anne"
     private final val dateOfBirth: OffsetDateTime = LocalDateTime
         .parse("2017-02-03 12:30:30", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
@@ -39,24 +39,25 @@ class DeleteUserApiIntegrationTest: BaseApiIntegrationTest<Unit, DeleteUserRespo
     }
 
     private fun successScenario(): TestScenario<Unit, DeleteUserResponse>{
+        val existingUser: UserDataModel = UserDataModel(
+            name = name,
+            dateOfBirth = dateOfBirth.toString(),
+            city = city,
+            email = email,
+            phoneNumber = phoneNumber
+        )
+
+        this.userRepository.save(existingUser)
+
+        val userId: Long = this.userRepository.findByEmail(email).get().id!!
+
         //This is a high order function
         val preScenario: () -> Unit = {
-            val existingUser: UserDataModel = UserDataModel(
-                name = name,
-                dateOfBirth = dateOfBirth.toString(),
-                city = city,
-                email = email,
-                phoneNumber = phoneNumber
-            )
-
-            this.userRepository.save(existingUser)
-
             Assert.assertTrue(this.userRepository.findById(userId).isPresent)
         }
 
         val postScenario: () -> Unit = {
-            val optionalUser: Optional<UserDataModel> = this.userRepository.findById(userId)
-            Assert.assertFalse(optionalUser.isPresent)
+            Assert.assertFalse(this.userRepository.findById(userId).isPresent)
         }
 
         return TestScenario(

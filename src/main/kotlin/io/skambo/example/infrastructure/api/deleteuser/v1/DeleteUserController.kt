@@ -17,7 +17,6 @@ import javax.servlet.http.HttpServletRequest
 @RequestMapping(value = ["v1/"])
 class DeleteUserController(private val userService: UserService) {
 
-    // TODO Fix adherence to API standards
     @RequestMapping(value = ["deleteUser/{id}"])
     fun deleteUser(
         @PathVariable ("id") userId:String,
