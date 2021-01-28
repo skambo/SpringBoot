@@ -65,7 +65,18 @@ class FetchUsersApiIntegrationTest: BaseApiIntegrationTest<Unit, FetchUsersRespo
 
     override fun createTestScenarios(): List<TestScenario<Unit, FetchUsersResponse>> {
         createTestData()
-        return listOf(successScenario(), noUsersFoundScenario(), filterByNameAndCityScenario(), filterByCity(), filterByPhoneNumber())
+        return listOf(
+            successScenario(),
+            noUsersFoundScenario(),
+            filterByNameAndCityScenario(),
+            filterByCity(),
+            filterByPhoneNumber(),
+            sortingDirectionScenario(),
+            sortingFieldsScenario(),
+            pageSizeScenario(),
+            pageSizeAndNumberScenario(),
+            filtersSortingAndPaginationScenario()
+        )
     }
 
     private fun createTestData(){
@@ -333,4 +344,235 @@ class FetchUsersApiIntegrationTest: BaseApiIntegrationTest<Unit, FetchUsersRespo
         )
     }
 
+    private fun sortingDirectionScenario(): TestScenario<Unit, FetchUsersResponse> {
+        //This is a high order function
+        val preScenario: () -> Unit = {}
+
+        val postScenario: () -> Unit = {}
+
+        return TestScenario(
+            description = "Sorting direction scenario",
+            endpoint = "${this.endpoint}?sortingDirection=desc",
+            httpHeaders = this.httpHeaders,
+            requestBody = this.requestBody,
+            expectedHttpStatus = HttpStatus.OK,
+            expectedResponseBody = FetchUsersResponse(
+                header = Header(
+                    messageId = UUID.randomUUID().toString(),
+                    timestamp = OffsetDateTime.now(),
+                    responseStatus = Status(
+                        status = ResponseStatus.SUCCESS.value
+                    )
+                ),
+                page = 1,
+                numberOfUsers = 3,
+                totalPages = 1,
+                users = arrayOf(
+                    UserDTO(
+                        id = userTwoId,
+                        name = userTwo.name,
+                        dateOfBirth = dateOfBirth,
+                        city = userTwo.city,
+                        email = userTwo.email,
+                        phoneNumber = userTwo.phoneNumber
+                    ),
+                    UserDTO(
+                        id = userThreeId,
+                        name = userThree.name,
+                        dateOfBirth = dateOfBirth,
+                        city = userThree.city,
+                        email = userThree.email,
+                        phoneNumber = userThree.phoneNumber
+                    ),
+                    UserDTO(
+                        id = userOneId,
+                        name = userOne.name,
+                        dateOfBirth = dateOfBirth,
+                        city = userOne.city,
+                        email = userOne.email,
+                        phoneNumber = userOne.phoneNumber
+                    )
+                )
+            ),
+            responseClass = FetchUsersResponse::class.java,
+            preScenario = preScenario,
+            postScenario = postScenario
+        )
+    }
+
+    private fun sortingFieldsScenario(): TestScenario<Unit, FetchUsersResponse> {
+        //This is a high order function
+        val preScenario: () -> Unit = {}
+
+        val postScenario: () -> Unit = {}
+
+        return TestScenario(
+            description = "Sorting fields scenario",
+            endpoint = "${this.endpoint}?sortingDirection=desc&orderBy=city,name",
+            httpHeaders = this.httpHeaders,
+            requestBody = this.requestBody,
+            expectedHttpStatus = HttpStatus.OK,
+            expectedResponseBody = FetchUsersResponse(
+                header = Header(
+                    messageId = UUID.randomUUID().toString(),
+                    timestamp = OffsetDateTime.now(),
+                    responseStatus = Status(
+                        status = ResponseStatus.SUCCESS.value
+                    )
+                ),
+                page = 1,
+                numberOfUsers = 3,
+                totalPages = 1,
+                users = arrayOf(
+                    UserDTO(
+                        id = userThreeId,
+                        name = userThree.name,
+                        dateOfBirth = dateOfBirth,
+                        city = userThree.city,
+                        email = userThree.email,
+                        phoneNumber = userThree.phoneNumber
+                    ),
+                    UserDTO(
+                        id = userOneId,
+                        name = userOne.name,
+                        dateOfBirth = dateOfBirth,
+                        city = userOne.city,
+                        email = userOne.email,
+                        phoneNumber = userOne.phoneNumber
+                    ),
+                    UserDTO(
+                        id = userTwoId,
+                        name = userTwo.name,
+                        dateOfBirth = dateOfBirth,
+                        city = userTwo.city,
+                        email = userTwo.email,
+                        phoneNumber = userTwo.phoneNumber
+                    )
+                )
+            ),
+            responseClass = FetchUsersResponse::class.java,
+            preScenario = preScenario,
+            postScenario = postScenario
+        )
+    }
+
+    private fun pageSizeScenario(): TestScenario<Unit, FetchUsersResponse> {
+        //This is a high order function
+        val preScenario: () -> Unit = {}
+
+        val postScenario: () -> Unit = {}
+
+        return TestScenario(
+            description = "Page size scenario",
+            endpoint = "${this.endpoint}?pageSize=1",
+            httpHeaders = this.httpHeaders,
+            requestBody = this.requestBody,
+            expectedHttpStatus = HttpStatus.OK,
+            expectedResponseBody = FetchUsersResponse(
+                header = Header(
+                    messageId = UUID.randomUUID().toString(),
+                    timestamp = OffsetDateTime.now(),
+                    responseStatus = Status(
+                        status = ResponseStatus.SUCCESS.value
+                    )
+                ),
+                page = 1,
+                numberOfUsers = 1,
+                totalPages = 3,
+                users = arrayOf(
+                    UserDTO(
+                        id = userOneId,
+                        name = userOne.name,
+                        dateOfBirth = dateOfBirth,
+                        city = userOne.city,
+                        email = userOne.email,
+                        phoneNumber = userOne.phoneNumber
+                    )
+                )
+            ),
+            responseClass = FetchUsersResponse::class.java,
+            preScenario = preScenario,
+            postScenario = postScenario
+        )
+    }
+
+    private fun pageSizeAndNumberScenario(): TestScenario<Unit, FetchUsersResponse> {
+        //This is a high order function
+        val preScenario: () -> Unit = {}
+
+        val postScenario: () -> Unit = {}
+
+        return TestScenario(
+            description = "Page size and number scenario",
+            endpoint = "${this.endpoint}?pageSize=1&pageNumber=3",
+            httpHeaders = this.httpHeaders,
+            requestBody = this.requestBody,
+            expectedHttpStatus = HttpStatus.OK,
+            expectedResponseBody = FetchUsersResponse(
+                header = Header(
+                    messageId = UUID.randomUUID().toString(),
+                    timestamp = OffsetDateTime.now(),
+                    responseStatus = Status(
+                        status = ResponseStatus.SUCCESS.value
+                    )
+                ),
+                page = 3,
+                numberOfUsers = 1,
+                totalPages = 3,
+                users = arrayOf(
+                    UserDTO(
+                        id = userThreeId,
+                        name = userThree.name,
+                        dateOfBirth = dateOfBirth,
+                        city = userThree.city,
+                        email = userThree.email,
+                        phoneNumber = userThree.phoneNumber
+                    )
+                )
+            ),
+            responseClass = FetchUsersResponse::class.java,
+            preScenario = preScenario,
+            postScenario = postScenario
+        )
+    }
+
+    private fun filtersSortingAndPaginationScenario(): TestScenario<Unit, FetchUsersResponse> {
+        //This is a high order function
+        val preScenario: () -> Unit = {}
+
+        val postScenario: () -> Unit = {}
+
+        return TestScenario(
+            description = "Filters, sorting and pagination scenario",
+            endpoint = "${this.endpoint}?filters=name:Michael&orderBy=name,city&sortingDirection=desc&pageSize=1&pageNumber=2",
+            httpHeaders = this.httpHeaders,
+            requestBody = this.requestBody,
+            expectedHttpStatus = HttpStatus.OK,
+            expectedResponseBody = FetchUsersResponse(
+                header = Header(
+                    messageId = UUID.randomUUID().toString(),
+                    timestamp = OffsetDateTime.now(),
+                    responseStatus = Status(
+                        status = ResponseStatus.SUCCESS.value
+                    )
+                ),
+                page = 2,
+                numberOfUsers = 1,
+                totalPages = 2,
+                users = arrayOf(
+                    UserDTO(
+                        id = userTwoId,
+                        name = userTwo.name,
+                        dateOfBirth = dateOfBirth,
+                        city = userTwo.city,
+                        email = userTwo.email,
+                        phoneNumber = userTwo.phoneNumber
+                    )
+                )
+            ),
+            responseClass = FetchUsersResponse::class.java,
+            preScenario = preScenario,
+            postScenario = postScenario
+        )
+    }
 }
