@@ -78,6 +78,8 @@ abstract class BaseApiIntegrationTest<RequestType, ResponseType> {
     @Test
     fun runIntegrationTests(){
         this.runTestScenarios(this.createTestScenarios())
+//        TODO This is a temporary solution because the clearDatabaseRule() does not seem to work
+        this.userRepository.deleteAll()
     }
 
     @Test

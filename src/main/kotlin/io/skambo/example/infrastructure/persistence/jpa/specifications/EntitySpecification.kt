@@ -25,14 +25,10 @@ class EntitySpecification<Entity>(private val criteria: FilterCriteria): Specifi
                 root.get<String>(criteria.key), criteria.value.toString()
             )
         } else if (criteria.operation.equals(":",  ignoreCase = true)) {
-            return if (root.get<String>(criteria.key).javaType === String::class.java) {
-                criteriaBuilder.like(
-                    root.get<String>(criteria.key),
-                    "%" + criteria.value.toString() + "%"
-                )
-            } else {
-                criteriaBuilder.equal(root.get<String>(criteria.key), criteria.value.toString())
-            }
+            return criteriaBuilder.equal(root.get<String>(criteria.key), criteria.value.toString())
+
+        } else if(criteria.operation.equals("~", ignoreCase = true)) {
+            return criteriaBuilder.like(root.get<String>(criteria.key), "%'${criteria.value}'%")
         }
         return null
     }

@@ -27,7 +27,7 @@ class FetchUserApiIntegrationTest: BaseApiIntegrationTest<Unit, FetchUserRespons
     private final val email: String = "anne@gmail.com"
     private final val phoneNumber: String = "1224"
 
-    override val endpoint: String = "/api/v1/fetchUser/"
+    override val endpoint: String = "/api/v1/fetchUser"
 
     override val httpMethod: HttpMethod = HttpMethod.GET
 
@@ -62,7 +62,7 @@ class FetchUserApiIntegrationTest: BaseApiIntegrationTest<Unit, FetchUserRespons
 
         return TestScenario(
             description = "Fetch user scenario",
-            endpoint = "${this.endpoint}$userId",
+            endpoint = "${this.endpoint}/$userId",
             httpHeaders = this.httpHeaders,
             requestBody = this.requestBody,
             expectedHttpStatus = HttpStatus.OK,
@@ -101,7 +101,7 @@ class FetchUserApiIntegrationTest: BaseApiIntegrationTest<Unit, FetchUserRespons
 
         return TestScenario(
             description = "User not found scenario",
-            endpoint = "${this.endpoint}$userId",
+            endpoint = "${this.endpoint}/$userId",
             httpHeaders = this.httpHeaders,
             requestBody = this.requestBody,
             expectedHttpStatus = HttpStatus.BAD_REQUEST,
@@ -132,7 +132,7 @@ class FetchUserApiIntegrationTest: BaseApiIntegrationTest<Unit, FetchUserRespons
 
         return TestScenario(
             description = "Invalid userId scenario",
-            endpoint = "${this.endpoint}$userId",
+            endpoint = "${this.endpoint}/$userId",
             httpHeaders = this.httpHeaders,
             requestBody = this.requestBody,
             expectedHttpStatus = HttpStatus.BAD_REQUEST,
