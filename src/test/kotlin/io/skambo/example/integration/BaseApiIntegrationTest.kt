@@ -241,7 +241,7 @@ abstract class BaseApiIntegrationTest<RequestType, ResponseType> {
         testScenarios: List<TestScenario<RequestType, ResponseType>>
     ){
         for(scenario: TestScenario<RequestType, ResponseType> in testScenarios){
-            logger.info("Executing ${scenario.description}")
+            logger.info("\nExecuting ${scenario.description}")
 
             //This is the pre scenario higher order function that is called before the scenario is executed
             //It is ideal for setting up data required for the test scenario
