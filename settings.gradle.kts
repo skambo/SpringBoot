@@ -4,6 +4,4 @@ pluginManagement {
         jcenter()
     }
 }
-rootProject.name = "SpringExample"
-
-
+rootProject.name = "springBootExample"
