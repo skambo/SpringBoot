@@ -1,11 +1,18 @@
 import io.skambo.example.tasks.GenerateModelTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.time.format.DateTimeFormatter
+import java.time.ZoneOffset
+import java.time.Instant
+import java.util.Properties
+import java.nio.file.Files
+import java.nio.file.Paths
 
 val springBootVersion:String = "2.3.2.RELEASE"
 
 plugins {
     id ("org.springframework.boot") version "2.3.2.RELEASE"
     id ("io.spring.dependency-management") version "1.0.8.RELEASE"
+    id ("org.liquibase.gradle") version "2.0.2"
     kotlin("jvm") version "1.3.50"
     kotlin("plugin.spring") version "1.3.41"
     jacoco
@@ -13,23 +20,24 @@ plugins {
 
 apply(plugin = "kotlin-jpa")
 apply(plugin = "org.openapi.generator")
+apply(plugin = "liquibase")
 
 group = "io.skambo"
 version = "1.0-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
-
 val ktlintOnly: Configuration by configurations.creating
 
 //val developmentOnly: Configuration by configurations.creating
 //configurations {
-//    runtimeClasspath {
-//        extendsFrom(developmentOnly)
-//    }
+// runtimeClasspath {
+// extendsFrom(developmentOnly)
+//  }
 //    compileOnly {
 //        extendsFrom(configurations.annotationProcessor.get())
 //    }
 //}
+
 
 buildscript {
     repositories {
@@ -41,8 +49,14 @@ buildscript {
         classpath("org.jetbrains.kotlin:kotlin-noarg:1.3.61")
         classpath("org.springframework.boot:spring-boot-gradle-plugin")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
+        classpath("org.liquibase:liquibase-gradle-plugin:2.0.1")
+//        // https://mvnrepository.com/artifact/org.liquibase/liquibase-core
+//        compile("org.liquibase:liquibase-core:4.2.2")
+//        // https://mvnrepository.com/artifact/org.liquibase.ext/liquibase-hibernate4
+//        compile("org.liquibase.ext:liquibase-hibernate4:3.5")
     }
 }
+
 
 repositories {
     mavenCentral()
@@ -81,6 +95,19 @@ dependencies {
 
     implementation("com.google.code.gson:gson:2.8.5")
 
+    // https://mvnrepository.com/artifact/javax.xml.bind/jaxb-api
+    // compile("jakarta.xml.bind:jakarta.xml.bind-api:3.0.0")
+
+    compile("org.liquibase:liquibase-core:4.2.2")
+    compile("org.liquibase:liquibase-gradle-plugin:2.0.1")
+    compile("mysql:mysql-connector-java:8.0.12")
+
+    add("liquibaseRuntime", "org.liquibase:liquibase-core:4.2.2")
+    add("liquibaseRuntime", "org.liquibase:liquibase-gradle-plugin:2.0.1")
+    add("liquibaseRuntime", "mysql:mysql-connector-java:8.0.12")
+    add("liquibaseRuntime", "ch.qos.logback:logback-core:1.2.3")
+    add("liquibaseRuntime", "ch.qos.logback:logback-classic:1.2.3")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test:$springBootVersion") {
         exclude(module ="spring-boot-starter-logging")
     }
@@ -94,6 +121,11 @@ dependencies {
 }
 
 project.ext.set("generatedFileNames", mutableListOf<String>())
+
+val liquibaseProperties = Properties()
+Files.newInputStream(Paths.get("src/main/resources/liquibase.properties")).use {
+    liquibaseProperties.load(it)
+}
 
 // Open API Generator options
 val generatorConfigOptions = mapOf(
@@ -332,6 +364,28 @@ val testCoverage by tasks.registering {
     val jacocoTestReport = tasks.findByName("jacocoTestReport")
     jacocoTestReport?.mustRunAfter(tasks.findByName("test"))
     tasks.findByName("jacocoTestCoverageVerification")?.mustRunAfter(jacocoTestReport)
+}
+
+liquibase {
+    activities.register("main") {
+        this.arguments = mapOf(
+            "logLevel" to "debug",
+            "changeLogFile" to "src/main/resources/db/changesets/${buildTimestamp()}.xml",
+            "referenceUrl" to liquibaseProperties["liquibase.datasource.referenceUrl"],
+            "url" to liquibaseProperties["liquibase.datasource.url"],
+            "username" to liquibaseProperties["liquibase.datasource.username"],
+            "password" to liquibaseProperties["liquibase.datasource.password"],
+            "driver" to liquibaseProperties["liquibase.datasource.driver"]
+        )
+    }
+    runList = "main"
+}
+
+fun buildTimestamp():String {
+    return DateTimeFormatter
+        .ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS")
+        .withZone(ZoneOffset.UTC)
+        .format(Instant.now())
 }
 
 
