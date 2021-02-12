@@ -16,6 +16,7 @@ plugins {
     kotlin("jvm") version "1.3.50"
     kotlin("plugin.spring") version "1.3.41"
     jacoco
+    application
 }
 
 apply(plugin = "kotlin-jpa")
@@ -27,6 +28,15 @@ version = "1.0-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
 val ktlintOnly: Configuration by configurations.creating
+
+val liquibaseProperties = Properties()
+Files.newInputStream(Paths.get("src/main/resources/liquibase.properties")).use {
+    liquibaseProperties.load(it)
+}
+
+application {
+    mainClassName = "io.skambo.example.SpringExampleApplication"
+}
 
 //val developmentOnly: Configuration by configurations.creating
 //configurations {
@@ -50,10 +60,6 @@ buildscript {
         classpath("org.springframework.boot:spring-boot-gradle-plugin")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
         classpath("org.liquibase:liquibase-gradle-plugin:2.0.1")
-//        // https://mvnrepository.com/artifact/org.liquibase/liquibase-core
-//        compile("org.liquibase:liquibase-core:4.2.2")
-//        // https://mvnrepository.com/artifact/org.liquibase.ext/liquibase-hibernate4
-//        compile("org.liquibase.ext:liquibase-hibernate4:3.5")
     }
 }
 
@@ -99,10 +105,13 @@ dependencies {
     // compile("jakarta.xml.bind:jakarta.xml.bind-api:3.0.0")
 
     compile("org.liquibase:liquibase-core:4.2.2")
+    compile("org.liquibase.ext:liquibase-hibernate5:4.2.2")
     compile("org.liquibase:liquibase-gradle-plugin:2.0.1")
     compile("mysql:mysql-connector-java:8.0.12")
 
     add("liquibaseRuntime", "org.liquibase:liquibase-core:4.2.2")
+    add("liquibaseRuntime", "org.liquibase.ext:liquibase-hibernate5:4.2.2")
+    add("liquibaseRuntime", "org.springframework.boot:spring-boot-starter-data-jpa:$springBootVersion")
     add("liquibaseRuntime", "org.liquibase:liquibase-gradle-plugin:2.0.1")
     add("liquibaseRuntime", "mysql:mysql-connector-java:8.0.12")
     add("liquibaseRuntime", "ch.qos.logback:logback-core:1.2.3")
@@ -121,11 +130,6 @@ dependencies {
 }
 
 project.ext.set("generatedFileNames", mutableListOf<String>())
-
-val liquibaseProperties = Properties()
-Files.newInputStream(Paths.get("src/main/resources/liquibase.properties")).use {
-    liquibaseProperties.load(it)
-}
 
 // Open API Generator options
 val generatorConfigOptions = mapOf(
@@ -371,11 +375,11 @@ liquibase {
         this.arguments = mapOf(
             "logLevel" to "debug",
             "changeLogFile" to "src/main/resources/db/changesets/${buildTimestamp()}.xml",
-            "referenceUrl" to liquibaseProperties["liquibase.datasource.referenceUrl"],
-            "url" to liquibaseProperties["liquibase.datasource.url"],
-            "username" to liquibaseProperties["liquibase.datasource.username"],
-            "password" to liquibaseProperties["liquibase.datasource.password"],
-            "driver" to liquibaseProperties["liquibase.datasource.driver"]
+            "driver" to liquibaseProperties["liquibase.driver-class-name"],
+            "referenceUrl" to liquibaseProperties["liquibase.reference-url"],
+            "url" to liquibaseProperties["liquibase.url"],
+            "username" to liquibaseProperties["liquibase.username"],
+            "password" to liquibaseProperties["liquibase.password"]
         )
     }
     runList = "main"
