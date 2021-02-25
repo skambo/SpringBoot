@@ -87,8 +87,6 @@ dependencies {
     }
     implementation("mysql:mysql-connector-java")
 
-    // developmentOnly("org.springframework.boot:spring-boot-devtools")
-
     // logging dependency
     implementation("org.springframework.boot:spring-boot-starter-log4j2:$springBootVersion")
 
@@ -101,8 +99,8 @@ dependencies {
 
     implementation("com.google.code.gson:gson:2.8.5")
 
-    // https://mvnrepository.com/artifact/javax.xml.bind/jaxb-api
-    // compile("jakarta.xml.bind:jakarta.xml.bind-api:3.0.0")
+    // https://mvnrepository.com/artifact/org.springframework.kafka/spring-kafka
+    implementation("org.springframework.kafka:spring-kafka:2.6.6")
 
     compile("org.liquibase:liquibase-core:4.2.2")
     compile("org.liquibase.ext:liquibase-hibernate5:4.2.2")
