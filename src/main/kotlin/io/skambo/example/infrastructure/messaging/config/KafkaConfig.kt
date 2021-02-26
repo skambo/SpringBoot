@@ -20,6 +20,9 @@ class KafkaConfig {
     @Value("\${kafka.bootstrap-address}")
     private val bootstrapAddress: String? = null
 
+//    @Value("\${spring.kafka.consumer.group-id}")
+//    private val groupId: String? = null
+
     @Bean
     fun producerFactory(): ProducerFactory<String, User> {
         val config: MutableMap<String, Any> = mutableMapOf()
@@ -40,7 +43,7 @@ class KafkaConfig {
     fun consumerFactory():ConsumerFactory<String, String>{
         val config: MutableMap<String, Any> = mutableMapOf()
         config[ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG] = bootstrapAddress!!
-        config[ConsumerConfig.GROUP_ID_CONFIG] = "group_id"
+        config[ConsumerConfig.GROUP_ID_CONFIG] = "group-id"
         config[ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG] = StringDeserializer::class.java
         config[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] = StringDeserializer::class.java
 
@@ -58,7 +61,7 @@ class KafkaConfig {
     fun userConsumerFactory():ConsumerFactory<String, User> {
         val config: MutableMap<String, Any> = mutableMapOf()
         config[ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG] = bootstrapAddress!!
-        config[ConsumerConfig.GROUP_ID_CONFIG] = "group_id"
+        config[ConsumerConfig.GROUP_ID_CONFIG] = "group-id"
         config[ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG] = StringDeserializer::class.java
         config[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] = StringDeserializer::class.java
         return DefaultKafkaConsumerFactory<String, User>(
@@ -68,7 +71,7 @@ class KafkaConfig {
         )
     }
 
-    @Bean
+    @Bean(value = ["concurrentKafkaListenerContainerFactory"])
     fun concurrentListenerContainerFactory():ConcurrentKafkaListenerContainerFactory<String, User>{
         val factory:ConcurrentKafkaListenerContainerFactory<String, User> = ConcurrentKafkaListenerContainerFactory()
         factory.consumerFactory = userConsumerFactory()
