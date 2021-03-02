@@ -6,9 +6,11 @@ import io.skambo.example.application.domain.model.User
 import io.skambo.example.infrastructure.persistence.jpa.entities.UserDataModel
 import io.skambo.example.infrastructure.persistence.jpa.repositories.UserRepository
 import io.skambo.example.infrastructure.persistence.jpa.specifications.EntitySpecificationBuilder
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.jpa.domain.Specification
+import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Service
 import java.time.OffsetDateTime
 import java.util.*
@@ -17,6 +19,9 @@ import java.util.regex.Pattern
 
 @Service
 class UserService(private val userRepository: UserRepository) {
+
+    @Autowired
+    private lateinit var kafkaTemplate: KafkaTemplate<String, User>
 
     @Throws(DuplicateUserException::class)
     fun createUser(user: User) : User {
@@ -31,6 +36,7 @@ class UserService(private val userRepository: UserRepository) {
 
         val id: Long = userRepository.save(userDataModel).id!!
         user.id = id
+        kafkaTemplate.send("Kafka_Example", user)
         return user
     }
 
