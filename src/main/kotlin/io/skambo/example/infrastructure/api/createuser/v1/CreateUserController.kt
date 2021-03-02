@@ -20,14 +20,14 @@ import javax.servlet.http.HttpServletRequest
 @RestController(value = "CreateUserControllerV1")
 @RequestMapping(value = ["v1/"])
 class CreateUserController(private val userService: UserService){
-    private val LOGGER = LoggerFactory.getLogger(CreateUserController::class.java)
+    //private val LOGGER = LoggerFactory.getLogger(CreateUserController::class.java)
 
     @PostMapping(value = ["createUser"])
     fun createUser(
         @RequestBody createUserRequest: CreateUserRequest,
         httpRequest: HttpServletRequest
     ): ResponseEntity<CreateUserResponse> {
-        LOGGER.info("Request received: $createUserRequest")
+       // LOGGER.info("Request received: $createUserRequest")
         val user: User = User (
             name = createUserRequest.name,
             dateOfBirth = createUserRequest.dateOfBirth,
@@ -49,7 +49,7 @@ class CreateUserController(private val userService: UserService){
             body = response,
             httpStatusCode = HttpStatus.CREATED
         )
-        LOGGER.info("Response returned: $responseEntity")
+        //LOGGER.info("Response returned: $responseEntity")
         return responseEntity
     }
 }

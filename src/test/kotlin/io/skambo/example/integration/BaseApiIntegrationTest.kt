@@ -12,14 +12,10 @@ import io.skambo.example.infrastructure.api.common.helpers.ApiResponseHelper
 import io.skambo.example.infrastructure.persistence.jpa.repositories.UserRepository
 import io.skambo.example.integration.rules.ClearDatabaseRule
 import io.skambo.example.integration.utils.TestScenario
-import io.skambo.example.utils.gson.GsonFactory
-import net.javacrumbs.jsonunit.assertj.JsonAssert
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 import net.javacrumbs.jsonunit.core.Option
 import org.junit.Assert
 import org.junit.Rule
-import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
