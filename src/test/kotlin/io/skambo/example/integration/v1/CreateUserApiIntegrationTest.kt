@@ -458,7 +458,7 @@ class CreateUserApiIntegrationTest: BaseApiIntegrationTest<String, CreateUserRes
                     responseStatus = Status(
                         status = ResponseStatus.REJECTED.value,
                         errorCode = ApiResponseHelper.lookupErrorCode(ErrorCodes.INVALID_REQUEST_ERR.value),
-                        errorMessage = "Required request body is missing: public org.springframework.http.ResponseEntity<io.skambo.example.infrastructure.api.createuser.v1.dto.CreateUserResponse> io.skambo.example.infrastructure.api.createuser.v1.CreateUserController.createUser(io.skambo.example.infrastructure.api.createuser.v1.dto.CreateUserRequest,javax.servlet.http.HttpServletRequest)"
+                        errorMessage = ApiResponseHelper.lookupErrorMessage(ErrorCodes.INVALID_REQUEST_BODY_ERR_MSG.value)
                     )
                 )
             ),

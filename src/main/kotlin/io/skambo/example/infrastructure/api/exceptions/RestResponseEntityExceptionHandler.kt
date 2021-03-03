@@ -89,7 +89,7 @@ class RestResponseEntityExceptionHandler {
                 val header = ApiResponseHelper.createRejectedHeader(
                     webRequest = request,
                     errorCode = ApiResponseHelper.lookupErrorCode(ErrorCodes.INVALID_REQUEST_ERR.value),
-                    errorMessage = ex.message.toString()
+                    errorMessage = ApiResponseHelper.lookupErrorMessage(ErrorCodes.INVALID_REQUEST_BODY_ERR_MSG.value)
                 )
                 response = ApiErrorResponse(header = header, result = null)
             }

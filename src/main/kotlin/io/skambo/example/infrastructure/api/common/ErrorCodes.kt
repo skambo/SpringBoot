@@ -14,4 +14,5 @@ enum class ErrorCodes(val value: String) {
     CONFLICTING_GROUP_ID_ERR_MSG("invalidRequest.conflictingGroupId"),
     CONFLICTING_MESSAGE_ID_ERR_MSG("invalidRequest.conflictingMessageId"),
     INVALID_TIMESTAMP_ERR_MSG("invalidRequest.invalidTimestamp"),
+    INVALID_REQUEST_BODY_ERR_MSG("invalidRequest.invalidRequestBody")
 }

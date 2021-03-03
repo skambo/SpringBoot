@@ -1,5 +1,7 @@
 package io.skambo.example.infrastructure.api.deleteuser.v1
 
+import io.skambo.example.application.domain.exceptions.DuplicateUserException
+import io.skambo.example.application.domain.exceptions.UserNotFoundException
 import io.skambo.example.application.services.UserService
 import io.skambo.example.infrastructure.api.common.dto.v1.Header
 import io.skambo.example.infrastructure.api.common.helpers.ApiResponseHelper
@@ -18,6 +20,7 @@ import javax.servlet.http.HttpServletRequest
 class DeleteUserController(private val userService: UserService) {
 
     @RequestMapping(value = ["deleteUser/{id}"])
+    @Throws(UserNotFoundException::class)
     fun deleteUser(
         @PathVariable ("id") userId:String,
         request: HttpServletRequest
