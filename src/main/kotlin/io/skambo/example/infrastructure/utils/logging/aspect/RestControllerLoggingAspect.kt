@@ -18,6 +18,10 @@ class RestControllerLoggingAspect {
     fun restController(){
     }
 
+    @Pointcut(value = "within(@org.springframework.web.bind.annotation.RestControllerAdvice *)")
+    fun restControllerAdvice(){
+    }
+
     @Pointcut(value = "execution(public * *(..))")
     fun publicOperation(){
     }
@@ -29,7 +33,7 @@ class RestControllerLoggingAspect {
         LOGGER.info("Request received")
     }
 
-    @AfterReturning(pointcut = "restController() && publicOperation())", returning = "result")
+    @AfterReturning(pointcut = "restController() || restControllerAdvice() && publicOperation())", returning = "result")
     fun logAfter(joinPoint: JoinPoint, result: Any){
         MDC.put("response", result.toString())
         LOGGER.info("Response received")
