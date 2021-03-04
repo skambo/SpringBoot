@@ -2,8 +2,7 @@ package io.skambo.example
 
 import io.skambo.example.infrastructure.persistence.jpa.entities.UserDataModel
 import io.skambo.example.infrastructure.persistence.jpa.specifications.EntitySpecificationBuilder
-import io.skambo.example.utils.gson.GsonFactory
-import org.json.JSONObject
+import io.skambo.example.infrastructure.utils.gson.GsonFactory
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.data.jpa.domain.Specification

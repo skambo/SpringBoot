@@ -12,12 +12,10 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.web.HttpRequestMethodNotSupportedException
-import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.context.request.WebRequest
 import org.springframework.web.servlet.NoHandlerFoundException
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler
 import java.time.format.DateTimeParseException
 import javax.servlet.http.HttpServletRequest
 import kotlin.Exception
@@ -89,7 +87,7 @@ class RestResponseEntityExceptionHandler {
                 val header = ApiResponseHelper.createRejectedHeader(
                     webRequest = request,
                     errorCode = ApiResponseHelper.lookupErrorCode(ErrorCodes.INVALID_REQUEST_ERR.value),
-                    errorMessage = ex.message.toString()
+                    errorMessage = ApiResponseHelper.lookupErrorMessage(ErrorCodes.INVALID_REQUEST_BODY_ERR_MSG.value)
                 )
                 response = ApiErrorResponse(header = header, result = null)
             }

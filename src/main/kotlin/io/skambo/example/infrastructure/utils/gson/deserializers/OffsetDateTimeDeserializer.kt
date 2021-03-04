@@ -1,4 +1,4 @@
-package io.skambo.example.utils.gson.deserializers
+package io.skambo.example.infrastructure.utils.gson.deserializers
 
 import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer

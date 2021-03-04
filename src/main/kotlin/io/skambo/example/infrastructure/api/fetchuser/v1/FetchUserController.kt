@@ -1,5 +1,7 @@
 package io.skambo.example.infrastructure.api.fetchuser.v1
 
+import io.skambo.example.application.domain.exceptions.DuplicateUserException
+import io.skambo.example.application.domain.exceptions.UserNotFoundException
 import io.skambo.example.application.domain.model.User
 import io.skambo.example.application.services.UserService
 import io.skambo.example.infrastructure.api.common.ApiHeaderKey
@@ -22,6 +24,7 @@ import javax.servlet.http.HttpServletRequest
 class FetchUserController(private val userService: UserService){
 
     @GetMapping(value = ["fetchUser/{id}"])
+    @Throws(UserNotFoundException::class)
     fun fetchUser(
         @PathVariable("id") userId:String,
         httpRequest: HttpServletRequest

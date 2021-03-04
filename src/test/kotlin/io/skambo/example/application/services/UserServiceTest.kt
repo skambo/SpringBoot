@@ -17,11 +17,13 @@ import org.mockito.Mockito.`when`
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.times
 import org.mockito.MockitoAnnotations
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.jpa.domain.Specification
+import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.time.OffsetDateTime
 import java.util.*
@@ -29,6 +31,9 @@ import kotlin.RuntimeException
 
 @ExtendWith(SpringExtension::class)
 class UserServiceTest {
+    @MockBean
+    private lateinit var mockKafkaTemplate: KafkaTemplate<String, User>
+
     @MockBean
     private lateinit var mockUserRepository: UserRepository
 
@@ -62,7 +67,7 @@ class UserServiceTest {
     fun setUp(){
         MockitoAnnotations.initMocks(this)
 
-       testUserService = UserService(mockUserRepository)
+       testUserService = UserService(mockUserRepository, mockKafkaTemplate)
     }
 
     @AfterEach

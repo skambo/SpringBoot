@@ -1,5 +1,6 @@
 package io.skambo.example.infrastructure.api.createuser.v1
 
+import io.skambo.example.MigrationApplication
 import io.skambo.example.application.domain.exceptions.DuplicateUserException
 import io.skambo.example.application.domain.model.User
 import io.skambo.example.application.services.UserService
@@ -7,6 +8,7 @@ import io.skambo.example.infrastructure.api.common.helpers.ApiResponseHelper
 import io.skambo.example.infrastructure.api.createuser.v1.dto.CreateUserRequest
 import io.skambo.example.infrastructure.api.createuser.v1.dto.CreateUserResponse
 import io.skambo.example.infrastructure.api.fetchuser.v1.dto.FetchUserResponse
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
@@ -20,6 +22,7 @@ import javax.servlet.http.HttpServletRequest
 class CreateUserController(private val userService: UserService){
 
     @PostMapping(value = ["createUser"])
+    @Throws(DuplicateUserException::class)
     fun createUser(
         @RequestBody createUserRequest: CreateUserRequest,
         httpRequest: HttpServletRequest
@@ -40,10 +43,11 @@ class CreateUserController(private val userService: UserService){
             email = createdUser.email,
             city = createdUser.city,
             phoneNumber = createdUser.phoneNumber)
-        return ApiResponseHelper.createResponseEntity<CreateUserResponse>(
+        val responseEntity: ResponseEntity<CreateUserResponse> = ApiResponseHelper.createResponseEntity<CreateUserResponse>(
             responseHeader = response.header,
             body = response,
             httpStatusCode = HttpStatus.CREATED
         )
+        return responseEntity
     }
 }

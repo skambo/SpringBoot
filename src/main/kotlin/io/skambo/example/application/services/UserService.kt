@@ -6,6 +6,8 @@ import io.skambo.example.application.domain.model.User
 import io.skambo.example.infrastructure.persistence.jpa.entities.UserDataModel
 import io.skambo.example.infrastructure.persistence.jpa.repositories.UserRepository
 import io.skambo.example.infrastructure.persistence.jpa.specifications.EntitySpecificationBuilder
+import org.slf4j.LoggerFactory
+import org.slf4j.MDC
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
@@ -18,10 +20,11 @@ import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 @Service
-class UserService(private val userRepository: UserRepository) {
-
-    @Autowired
-    private lateinit var kafkaTemplate: KafkaTemplate<String, User>
+class UserService(
+    private val userRepository: UserRepository,
+    private val kafkaTemplate: KafkaTemplate<String, User>
+) {
+    private val LOGGER = LoggerFactory.getLogger(UserService::class.java)
 
     @Throws(DuplicateUserException::class)
     fun createUser(user: User) : User {
@@ -37,6 +40,11 @@ class UserService(private val userRepository: UserRepository) {
         val id: Long = userRepository.save(userDataModel).id!!
         user.id = id
         kafkaTemplate.send("Kafka_Example", user)
+
+        MDC.put("userDetails", user.toString())
+        LOGGER.info("User created")
+        MDC.clear()
+
         return user
     }
 
@@ -51,6 +59,10 @@ class UserService(private val userRepository: UserRepository) {
             phoneNumber = user.phoneNumber
         )
         userRepository.save(userDataModel)
+
+        MDC.put("userDetails", user.toString())
+        LOGGER.info("User updated")
+        MDC.clear()
     }
 
     fun findUsers(pageRequest:PageRequest, filters: String):Page<User>{
@@ -64,6 +76,9 @@ class UserService(private val userRepository: UserRepository) {
         val specification: Specification<UserDataModel>? = builder.build()
 
         val users = userRepository.findAll(pageable = pageRequest, specification = specification)
+
+        LOGGER.info("${users.size} users found")
+
         return users.map {userDataModel -> userDataModelToUser(userDataModel)}
     }
 
@@ -72,6 +87,11 @@ class UserService(private val userRepository: UserRepository) {
         try{
             val userIdLong: Long = userId.toLong()
             val userDataModel:UserDataModel = findUserDataModelById(userIdLong)
+
+            MDC.put("userId", userId)
+            LOGGER.info("User found")
+            MDC.clear()
+
             return userDataModelToUser(userDataModel)
         } catch(numberFormatException: NumberFormatException){
             throw UserNotFoundException(message = "User with id '$userId' not found", cause = numberFormatException)
@@ -84,6 +104,11 @@ class UserService(private val userRepository: UserRepository) {
             val userIdLong: Long = userId.toLong()
             val userDataModel:UserDataModel = findUserDataModelById(userIdLong)
             userRepository.delete(userDataModel)
+
+            MDC.put("userId", userId)
+            LOGGER.info("User deleted")
+            MDC.clear()
+
         } catch(numberFormatException: NumberFormatException){
             throw UserNotFoundException(message = "User with id '$userId' not found", cause = numberFormatException)
         }
@@ -110,11 +135,13 @@ class UserService(private val userRepository: UserRepository) {
 
     private fun checkUserUniqueness(email:String, phoneNumber:String){
         if (userRepository.findByEmail(email).isPresent){
+            LOGGER.info("User with email address $email exists")
             //throw a custom domain exception
             throw DuplicateUserException("User with email = $email exists")
         }
 
         if (userRepository.findByPhoneNumber(phoneNumber).isPresent){
+            LOGGER.info("User with phone number $phoneNumber exists")
             //throw a custom domain exception
             throw DuplicateUserException("User with phoneNumber = $phoneNumber exists")
        }

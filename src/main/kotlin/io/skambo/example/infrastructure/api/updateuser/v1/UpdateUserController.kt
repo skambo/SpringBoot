@@ -1,5 +1,7 @@
 package io.skambo.example.infrastructure.api.updateuser.v1
 
+import io.skambo.example.application.domain.exceptions.DuplicateUserException
+import io.skambo.example.application.domain.exceptions.UserNotFoundException
 import io.skambo.example.application.domain.model.User
 import io.skambo.example.application.services.UserService
 import io.skambo.example.infrastructure.api.common.helpers.ApiResponseHelper
@@ -16,6 +18,7 @@ import javax.servlet.http.HttpServletRequest
 class UpdateUserController(private val userService: UserService) {
 
     @PatchMapping(value = ["updateUser/{id}"])
+    @Throws(DuplicateUserException::class, UserNotFoundException::class)
     fun updateUser(
         @RequestBody updateUserRequest: UpdateUserRequest,
         @PathVariable("id") userId:String,

@@ -1,9 +1,9 @@
-package io.skambo.example.utils.gson
+package io.skambo.example.infrastructure.utils.gson
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import io.skambo.example.utils.gson.deserializers.OffsetDateTimeDeserializer
-import io.skambo.example.utils.gson.serializers.OffsetDateTimeSerializer
+import io.skambo.example.infrastructure.utils.gson.deserializers.OffsetDateTimeDeserializer
+import io.skambo.example.infrastructure.utils.gson.serializers.OffsetDateTimeSerializer
 import java.time.OffsetDateTime
 
 /**

@@ -1,4 +1,4 @@
-package io.skambo.example.utils.gson.serializers
+package io.skambo.example.infrastructure.utils.gson.serializers
 
 import com.google.gson.JsonPrimitive
 import com.google.gson.JsonSerializationContext
