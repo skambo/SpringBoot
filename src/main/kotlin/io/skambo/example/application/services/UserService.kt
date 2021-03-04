@@ -59,6 +59,10 @@ class UserService(
             phoneNumber = user.phoneNumber
         )
         userRepository.save(userDataModel)
+
+        MDC.put("userDetails", user.toString())
+        LOGGER.info("User updated")
+        MDC.clear()
     }
 
     fun findUsers(pageRequest:PageRequest, filters: String):Page<User>{
@@ -72,6 +76,9 @@ class UserService(
         val specification: Specification<UserDataModel>? = builder.build()
 
         val users = userRepository.findAll(pageable = pageRequest, specification = specification)
+
+        LOGGER.info("${users.size} users found")
+
         return users.map {userDataModel -> userDataModelToUser(userDataModel)}
     }
 
@@ -80,6 +87,11 @@ class UserService(
         try{
             val userIdLong: Long = userId.toLong()
             val userDataModel:UserDataModel = findUserDataModelById(userIdLong)
+
+            MDC.put("userId", userId)
+            LOGGER.info("User found")
+            MDC.clear()
+
             return userDataModelToUser(userDataModel)
         } catch(numberFormatException: NumberFormatException){
             throw UserNotFoundException(message = "User with id '$userId' not found", cause = numberFormatException)
@@ -92,6 +104,11 @@ class UserService(
             val userIdLong: Long = userId.toLong()
             val userDataModel:UserDataModel = findUserDataModelById(userIdLong)
             userRepository.delete(userDataModel)
+
+            MDC.put("userId", userId)
+            LOGGER.info("User deleted")
+            MDC.clear()
+
         } catch(numberFormatException: NumberFormatException){
             throw UserNotFoundException(message = "User with id '$userId' not found", cause = numberFormatException)
         }
