@@ -2,7 +2,7 @@ package io.skambo.example.common.metrics
 
 import io.skambo.example.common.metrics.exceptions.InvalidMetricNameException
 
-class MetricsHelper {
+object MetricsHelper {
     private val SEPARATOR_TOKEN: String = "."
     private val SERVICE_NAME: String = "eng_userservice_api"
 
@@ -12,7 +12,7 @@ class MetricsHelper {
             val joinedSubComponents: String = subcomponents.joinToString(separator = SEPARATOR_TOKEN)
             components = "$component$SEPARATOR_TOKEN$joinedSubComponents"
         }
-        return "$SERVICE_NAME$SEPARATOR_TOKEN$components$SEPARATOR_TOKEN${type.name}"
+        return "$SERVICE_NAME$SEPARATOR_TOKEN$components$SEPARATOR_TOKEN${type.value}"
     }
 
     @Throws(InvalidMetricNameException::class)
