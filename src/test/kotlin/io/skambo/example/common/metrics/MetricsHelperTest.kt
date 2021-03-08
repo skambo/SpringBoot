@@ -31,4 +31,16 @@ class MetricsHelperTest {
         )
         Assert.assertEquals(expectedMetricName, metricName)
     }
+
+    @Test
+    fun testValidateMetricName(){
+        val validNames: List<String> = listOf(
+            "eng_userservice_api.$component.$subComponent.$metricPoint.${metricType.value}",
+            "eng_userservice_api.$component",
+            "eng_userservice_api.$component.${metricType.value}"
+        )
+        for (name in validNames) {
+            Assert.assertTrue(MetricsHelper.validateMetricName(name))
+        }
+    }
 }
