@@ -27,7 +27,7 @@ class MetricTags(key: String, value: String) {
      * @param value the tag value to add
      * @return a new {@code MetricTags} instance
      */
-    fun and(key: String, value: String): MetricTags  {
+    fun and(key: String, value: String): MetricTags {
         if (key.isNotEmpty()) {
             this.map[key] = value
         }

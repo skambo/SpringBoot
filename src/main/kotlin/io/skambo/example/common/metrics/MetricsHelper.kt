@@ -18,7 +18,7 @@ object MetricsHelper {
     @Throws(InvalidMetricNameException::class)
     fun validateMetricName(metricName: String ): Boolean {
         // . needs to be escaped when used as delimiter in split()
-        val splitName: List<String> = metricName.split(String.format("\\%s", SEPARATOR_TOKEN))
+        val splitName: List<String> = metricName.split(SEPARATOR_TOKEN)
 
         if (!((splitName[0] == SERVICE_NAME) && splitName.size >= 2)) {
             throw InvalidMetricNameException(
