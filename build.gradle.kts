@@ -105,6 +105,10 @@ dependencies {
     // https://mvnrepository.com/artifact/io.micrometer/micrometer-core
     implementation("io.micrometer:micrometer-core:1.6.4")
 
+    // https://mvnrepository.com/artifact/io.micrometer/micrometer-registry-datadog
+    implementation("io.micrometer:micrometer-registry-datadog:1.6.4")
+
+
 
     compile("org.liquibase:liquibase-core:4.2.2")
     compile("org.liquibase.ext:liquibase-hibernate5:4.2.2")

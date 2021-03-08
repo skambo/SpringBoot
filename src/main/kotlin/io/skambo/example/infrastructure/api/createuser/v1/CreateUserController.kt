@@ -4,6 +4,10 @@ import io.skambo.example.MigrationApplication
 import io.skambo.example.application.domain.exceptions.DuplicateUserException
 import io.skambo.example.application.domain.model.User
 import io.skambo.example.application.services.UserService
+import io.skambo.example.common.metrics.MetricTags
+import io.skambo.example.common.metrics.MetricType
+import io.skambo.example.common.metrics.MetricsAgent
+import io.skambo.example.common.metrics.MetricsHelper
 import io.skambo.example.infrastructure.api.common.helpers.ApiResponseHelper
 import io.skambo.example.infrastructure.api.createuser.v1.dto.CreateUserRequest
 import io.skambo.example.infrastructure.api.createuser.v1.dto.CreateUserResponse
@@ -19,7 +23,7 @@ import javax.servlet.http.HttpServletRequest
 
 @RestController(value = "CreateUserControllerV1")
 @RequestMapping(value = ["v1/"])
-class CreateUserController(private val userService: UserService){
+class CreateUserController(private val userService: UserService, private val metricsAgent: MetricsAgent){
 
     @PostMapping(value = ["createUser"])
     @Throws(DuplicateUserException::class)
@@ -27,6 +31,17 @@ class CreateUserController(private val userService: UserService){
         @RequestBody createUserRequest: CreateUserRequest,
         httpRequest: HttpServletRequest
     ): ResponseEntity<CreateUserResponse> {
+        metricsAgent.incrementCounter(
+            name = MetricsHelper.getMetricName(
+                type = MetricType.COUNTER,
+                component = "api",
+                subcomponents = arrayOf("create_user", "request")
+            ),
+            metricTags = MetricTags("service", "eng_userservice_api")
+                .and("component", "api")
+                .and("operation", "create_user")
+                .and("metricPoint", "request")
+        )
         val user: User = User (
             name = createUserRequest.name,
             dateOfBirth = createUserRequest.dateOfBirth,
