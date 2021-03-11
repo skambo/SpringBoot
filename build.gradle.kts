@@ -39,6 +39,21 @@ application {
     mainClassName = "io.skambo.example.SpringExampleApplication"
 }
 
+val jar by tasks.getting(Jar::class) {
+    manifest {
+        attributes["Main-Class"] = "io.skambo.example.SpringExampleApplication"
+    }
+
+    // To add all of the dependencies otherwise a "NoClassDefFoundError" error
+    from(sourceSets.main.get().output)
+
+    dependsOn(configurations.runtimeClasspath)
+    from({
+        configurations.runtimeClasspath.get().filter { it.name.endsWith("jar") }.map { zipTree(it) }
+    })
+}
+
+
 //val developmentOnly: Configuration by configurations.creating
 //configurations {
 // runtimeClasspath {
@@ -109,6 +124,11 @@ dependencies {
     // https://mvnrepository.com/artifact/io.micrometer/micrometer-registry-datadog
     implementation("io.micrometer:micrometer-registry-datadog:1.6.4")
 
+    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-actuator
+    implementation("org.springframework.boot:spring-boot-actuator:2.4.3")
+
+    // https://mvnrepository.com/artifact/io.micrometer/micrometer-spring-legacy
+    implementation("io.micrometer:micrometer-spring-legacy:1.3.17")
 
 
     compile("org.liquibase:liquibase-core:4.2.2")
