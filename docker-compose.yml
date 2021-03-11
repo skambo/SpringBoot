@@ -69,7 +69,7 @@ services:
   datadog:
     image: gcr.io/datadoghq/agent:latest
     environment:
-      - DD_API_KEY=6d5ccb2b0ac9dde9906f10f53c8fa481
+      - DD_API_KEY=
       - DD_SITE=datadoghq.eu
       - DD_DOGSTATSD_NON_LOCAL_TRAFFIC=true
     volumes:

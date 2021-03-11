@@ -1,6 +1,5 @@
 package io.skambo.example.infrastructure.api.createuser.v1
 
-import io.skambo.example.MigrationApplication
 import io.skambo.example.application.domain.exceptions.DuplicateUserException
 import io.skambo.example.application.domain.model.User
 import io.skambo.example.application.services.UserService
@@ -11,8 +10,6 @@ import io.skambo.example.common.metrics.MetricsHelper
 import io.skambo.example.infrastructure.api.common.helpers.ApiResponseHelper
 import io.skambo.example.infrastructure.api.createuser.v1.dto.CreateUserRequest
 import io.skambo.example.infrastructure.api.createuser.v1.dto.CreateUserResponse
-import io.skambo.example.infrastructure.api.fetchuser.v1.dto.FetchUserResponse
-import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
@@ -37,8 +34,7 @@ class CreateUserController(private val userService: UserService, private val met
                 component = "api",
                 subcomponents = arrayOf("create_user", "request")
             ),
-            metricTags = MetricTags("service", "eng_userservice_api")
-                .and("component", "api")
+            metricTags = MetricTags("component", "api")
                 .and("operation", "create_user")
                 .and("metricPoint", "request")
         )
