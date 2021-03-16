@@ -4,6 +4,7 @@ import io.skambo.example.application.domain.exceptions.DuplicateUserException
 import io.skambo.example.application.domain.model.User
 import io.skambo.example.application.services.UserService
 import io.skambo.example.ApiTestHelper
+import io.skambo.example.common.metrics.MetricsAgent
 import io.skambo.example.infrastructure.api.common.ResponseStatus
 import io.skambo.example.infrastructure.api.createuser.v1.dto.CreateUserRequest
 import io.skambo.example.infrastructure.api.createuser.v1.dto.CreateUserResponse
@@ -29,6 +30,9 @@ import javax.servlet.http.HttpServletRequest
 class CreateUserControllerTest {
     @MockBean
     private lateinit var mockUserService: UserService
+
+    @MockBean
+    private lateinit var metricsAgent: MetricsAgent
 
     @Mock
     private lateinit var testHttpServletRequest: HttpServletRequest
@@ -64,7 +68,7 @@ class CreateUserControllerTest {
     @BeforeEach
     fun setUp(){
         MockitoAnnotations.initMocks(this)
-        testCreateUserController = CreateUserController(mockUserService)
+        testCreateUserController = CreateUserController(mockUserService, metricsAgent)
     }
 
     @AfterEach

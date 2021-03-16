@@ -1,18 +1,23 @@
-package io.skambo.example.infrastructure.utils.logging.aspect
+package io.skambo.example.infrastructure.utils.aspects
 
+import io.skambo.example.common.metrics.*
 import io.skambo.example.infrastructure.api.common.ApiHeaderKey
 import org.aspectj.lang.JoinPoint
 import org.aspectj.lang.annotation.*
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import java.util.*
 import javax.servlet.http.HttpServletRequest
 
 @Aspect
 @Component
-class RestControllerLoggingAspect {
-    private val LOGGER = LoggerFactory.getLogger(RestControllerLoggingAspect::class.java)
+class RestControllerLoggingAndMetricsAspect {
+    private val LOGGER = LoggerFactory.getLogger(RestControllerLoggingAndMetricsAspect::class.java)
+
+    @Autowired
+    private lateinit var metricsAgent: MetricsAgent
 
     @Pointcut(value = "within(@org.springframework.web.bind.annotation.RestController *)")
     fun restController(){
@@ -27,21 +32,32 @@ class RestControllerLoggingAspect {
     }
 
     @Before(value = "restController() && publicOperation()")
-    fun logBefore(joinPoint: JoinPoint){
+    fun beforeHandlingRequest(joinPoint: JoinPoint){
         MDC.put("controllerName", joinPoint.signature.declaringTypeName)
         this.setRequestDetailsInLogContext(joinPoint)
         LOGGER.info("Request received")
+
+        metricsAgent.incrementCounter(
+            name = MetricsHelper.getMetricName(
+                type = MetricType.COUNTER,
+                component = MetricsWayPoint.webComponent,
+                subcomponents = arrayOf(joinPoint.signature.name, MetricsWayPoint.requestMetricPoint)
+            ),
+            metricTags = MetricTags(MetricsTagKey.COMPONENT.value, MetricsWayPoint.webComponent)
+                .and(MetricsTagKey.OPERATION.value, joinPoint.signature.name)
+                .and(MetricsTagKey.METRIC_POINT.value, MetricsWayPoint.requestMetricPoint)
+        )
     }
 
     @AfterReturning(pointcut = "restController() || restControllerAdvice() && publicOperation())", returning = "result")
-    fun logAfter(joinPoint: JoinPoint, result: Any){
+    fun afterReturningResponse(joinPoint: JoinPoint, result: Any){
         MDC.put("response", result.toString())
         LOGGER.info("Response received")
         MDC.clear()
     }
 
     @AfterThrowing(pointcut = "restController()", throwing = "exception")
-    fun logAfterThrowing(joinPoint: JoinPoint, exception: Throwable){
+    fun afterAnExceptionIsThrown(joinPoint: JoinPoint, exception: Throwable){
         MDC.put("EXCEPTION_MESSAGE", exception.message)
         MDC.put("STACK_TRACE", Arrays.toString(exception.stackTrace))
         LOGGER.error("An exception has occurred")
