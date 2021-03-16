@@ -1,7 +1,7 @@
 package io.skambo.example
 
 import io.micrometer.core.instrument.MeterRegistry
-import io.micrometer.spring.autoconfigure.MeterRegistryCustomizer
+//import io.micrometer.spring.autoconfigure.MeterRegistryCustomizer
 import io.skambo.example.common.metrics.MetricsTagKey
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -21,12 +21,13 @@ class SpringExampleApplication{
         }
     }
 
-    @Bean
-    fun metricsCommonTags(): MeterRegistryCustomizer<MeterRegistry> {
-        return MeterRegistryCustomizer<MeterRegistry> { registry ->
-            registry.config().commonTags(MetricsTagKey.SERVICE.value, serviceName)
-        }
-    }
+    //TODO Fix the micrometer-datadog integration
+//    @Bean
+//    fun metricsCommonTags(): MeterRegistryCustomizer<MeterRegistry> {
+//        return MeterRegistryCustomizer<MeterRegistry> { registry ->
+//            registry.config().commonTags(MetricsTagKey.SERVICE.value, serviceName)
+//        }
+//    }
 }
 
 

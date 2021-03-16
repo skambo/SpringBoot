@@ -128,7 +128,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-actuator:2.4.3")
 
     // https://mvnrepository.com/artifact/io.micrometer/micrometer-spring-legacy
-    implementation("io.micrometer:micrometer-spring-legacy:1.3.17")
+    // implementation("io.micrometer:micrometer-spring-legacy:1.3.17")
 
 
     compile("org.liquibase:liquibase-core:4.2.2")
