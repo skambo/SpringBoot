@@ -9,16 +9,17 @@ terraform {
 
 provider "aws" {
   profile = "default"
-  region  = "eu-west-1"
+  region  = var.region
 }
 
 resource "aws_instance" "example" {
   ami           = "ami-079d9017cb651564d"
-  instance_type = "t2.micro"
+  instance_type = var.ec2_instance_type
 
   tags = {
-    Name   = "ExampleInstance"
-    Owner  = "Engineering"
-    Status = "Active"
+    Name        = var.ec2_instance_name
+    Owner       = "Engineering"
+    Status      = "Active"
+    Environment = var.environment
   }
 }
