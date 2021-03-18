@@ -1,4 +1,12 @@
 terraform {
+  backend "remote" {
+    organization = "Sandra"
+
+    workspaces {
+      name = "ExampleWorkspace"
+    }
+  }
+
   required_providers {
     aws = {
       source  = "hashicorp/aws"
