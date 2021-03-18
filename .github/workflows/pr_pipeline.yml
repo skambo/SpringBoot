@@ -12,5 +12,8 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 11
-      - name: Run tests
+      - name: Run unit tests
         run: ./gradlew unitTest
+
+      - name: Run integration tests
+        run: ./gradlew integrationTest
