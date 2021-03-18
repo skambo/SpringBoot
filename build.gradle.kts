@@ -23,6 +23,7 @@ apply(plugin = "kotlin-jpa")
 apply(plugin = "org.openapi.generator")
 apply(plugin = "liquibase")
 apply(plugin = "application")
+apply(plugin = "checkstyle")
 
 group = "io.skambo"
 version = "1.0-SNAPSHOT"
