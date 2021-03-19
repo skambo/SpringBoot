@@ -17,12 +17,14 @@ plugins {
     kotlin("plugin.spring") version "1.3.41"
     jacoco
     application
+    checkstyle
 }
 
 apply(plugin = "kotlin-jpa")
 apply(plugin = "org.openapi.generator")
 apply(plugin = "liquibase")
 apply(plugin = "application")
+// apply(plugin = "checkstyle")
 
 group = "io.skambo"
 version = "1.0-SNAPSHOT"
@@ -311,6 +313,12 @@ task<Test>("integrationTest") {
     }
 }
 
+checkstyle {
+    toolVersion = "8.16"
+    isIgnoreFailures = false
+    isShowViolations = true
+    configFile = rootProject.file("config/checkstyle/checkstyle.xml")
+}
 
 jacoco {
     toolVersion = "0.8.4"
