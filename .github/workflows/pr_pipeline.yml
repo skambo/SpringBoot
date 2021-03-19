@@ -15,7 +15,7 @@ jobs:
       - name: Run checkstyle main
         run: ./gradlew checkstyleMain
       - name: Run checkstyle test
-          run: ./gradlew checkstyleTest
+        run: ./gradlew checkstyleTest
 
   unitTests:
     runs-on: ubuntu-latest
